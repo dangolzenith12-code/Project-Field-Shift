@@ -15,6 +15,23 @@
   --retro-text: #FFFFFF;
   --retro-subtext: #A0C8AA;
 
+  /* Semantic Theme Variables & Fallbacks */
+  --ink: #111A13;
+  --paper: #FDFBF7;
+  --turmeric: #FFB703;
+  --chili: #E63946;
+  --soil: #5C3D24;
+  --monsoon: #2F6FED;
+  --paddy: #3FA34D;
+  --dusk: #7B4FA3;
+  --radius: 8px;
+  --radius-sm: 4px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 14px;
+  --space-4: 20px;
+  --font-display: "Press Start 2P", monospace;
+
   /* Typography */
   --font-pixel: "Press Start 2P", monospace;
   --font-retro: "VT323", "Silkscreen", monospace;
@@ -47,20 +64,9 @@ html, body {
   overflow-x: hidden;
 }
 
-/* Subtle CRT Scanlines */
+/* Scanline shader disabled to prevent moire banding and text washout */
 body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    0deg,
-    rgba(0, 0, 0, 0.15),
-    rgba(0, 0, 0, 0.15) 1px,
-    transparent 1px,
-    transparent 2px
-  );
-  z-index: 9999;
+  display: none;
 }
 
 /* Pixel Headings */

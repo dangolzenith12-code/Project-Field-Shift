@@ -36,22 +36,22 @@
   let didWin = $state(false);
   let timerId: any = null;
 
-  // Safe temperature threshold is <= 32°C
-  const SAFE_TEMP = 32;
+  // Safe temperature threshold is <= 36°C (generous threshold)
+  const SAFE_TEMP = 36;
   const allBedsSafe = $derived(beds.every(b => b.tempC <= SAFE_TEMP));
 
   function startGame() {
     isGameOver = false;
     didWin = false;
-    countdownSeconds = 18;
+    countdownSeconds = 24;
     mulchCount = 4;
-    shadeCount = 3;
-    dripCount = 3;
+    shadeCount = 4;
+    dripCount = 4;
     beds = [
-      { id: 1, name: 'Bed 1: Pulses', tempC: 46, hasMulch: false, hasShade: false, hasDrip: false },
-      { id: 2, name: 'Bed 2: Millets', tempC: 43, hasMulch: false, hasShade: false, hasDrip: false },
-      { id: 3, name: 'Bed 3: Wheat', tempC: 48, hasMulch: false, hasShade: false, hasDrip: false },
-      { id: 4, name: 'Bed 4: Mustard', tempC: 45, hasMulch: false, hasShade: false, hasDrip: false },
+      { id: 1, name: 'Bed 1: Pulses', tempC: 44, hasMulch: false, hasShade: false, hasDrip: false },
+      { id: 2, name: 'Bed 2: Millets', tempC: 41, hasMulch: false, hasShade: false, hasDrip: false },
+      { id: 3, name: 'Bed 3: Wheat', tempC: 45, hasMulch: false, hasShade: false, hasDrip: false },
+      { id: 4, name: 'Bed 4: Mustard', tempC: 42, hasMulch: false, hasShade: false, hasDrip: false },
     ];
 
     if (timerId) clearInterval(timerId);
@@ -59,16 +59,16 @@
       if (countdownSeconds > 0) {
         countdownSeconds--;
 
-        // Solar heat radiation increases unshielded beds
+        // Solar heat radiation increases unshielded beds (gentler pace)
         beds = beds.map(bed => {
-          let heatGain = 1.2;
-          if (bed.hasShade) heatGain -= 0.8;
-          if (bed.hasMulch) heatGain -= 0.6;
-          if (bed.hasDrip) heatGain -= 0.5;
+          let heatGain = 0.7;
+          if (bed.hasShade) heatGain -= 0.6;
+          if (bed.hasMulch) heatGain -= 0.5;
+          if (bed.hasDrip) heatGain -= 0.4;
 
           return {
             ...bed,
-            tempC: Math.min(60, Math.max(24, Number((bed.tempC + heatGain).toFixed(1))))
+            tempC: Math.min(60, Math.max(22, Number((bed.tempC + heatGain).toFixed(1))))
           };
         });
       } else {
@@ -94,19 +94,19 @@
       sfx.playSelect();
       mulchCount--;
       bed.hasMulch = true;
-      bed.tempC = Math.max(22, bed.tempC - 9);
+      bed.tempC = Math.max(22, bed.tempC - 11);
     } else if (selectedTool === 'shade') {
       if (shadeCount <= 0 || bed.hasShade) return;
       sfx.playSelect();
       shadeCount--;
       bed.hasShade = true;
-      bed.tempC = Math.max(22, bed.tempC - 7);
+      bed.tempC = Math.max(22, bed.tempC - 9);
     } else if (selectedTool === 'drip') {
       if (dripCount <= 0 || bed.hasDrip) return;
       sfx.playSelect();
       dripCount--;
       bed.hasDrip = true;
-      bed.tempC = Math.max(22, bed.tempC - 11);
+      bed.tempC = Math.max(22, bed.tempC - 13);
     }
 
     beds = [...beds];

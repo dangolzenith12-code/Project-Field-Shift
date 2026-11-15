@@ -192,6 +192,9 @@
           onOpenRegionSelect={() => setView('REGION_SELECT')}
           onOpenStyleguide={() => setView('STYLEGUIDE')}
           onAdvanceSeason={advanceSeason}
+          onBackToStory={() => setView('STORY_GAME')}
+          onBackToIntro={() => setView('INTRO')}
+          onSelectRegion={handleSelectRegion}
         />
       {:else}
         <FarmPlayScreen 

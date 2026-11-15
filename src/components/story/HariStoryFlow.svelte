@@ -38,6 +38,9 @@
   let typingTimer: any = null;
   let hasStartedAdventure = $state(false);
 
+  // Active satellite telemetry popout drawer
+  let activeTelemetryMission = $state<string | null>(null);
+
   // Cumulative Farm Resilience Meters
   let meters = $state<FarmMeters>({
     soilMoisture: 42,
@@ -78,7 +81,7 @@
         isTyping = false;
         clearInterval(typingTimer);
       }
-    }, 22);
+    }, 20);
   }
 
   $effect(() => {
@@ -102,6 +105,14 @@
       if (typingTimer) clearInterval(typingTimer);
     };
   });
+
+  function jumpToStage(stage: StoryStage) {
+    sfx.playSelect();
+    currentStage = stage;
+    hasStartedAdventure = true;
+    activeTelemetryMission = null;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
   function handleStartAdventureClick() {
     sfx.playSelect();
@@ -223,6 +234,68 @@
 </script>
 
 <div class="hari-arcade-viewport">
+  <!-- Interactive Chapter Fast-Travel & Story Navigation Rail -->
+  <header class="story-chapter-strip font-pixel">
+    <div class="strip-left">
+      <span class="chapter-strip-title font-pixel">STORY MODE:</span>
+      <button 
+        type="button" 
+        class="chapter-pill {currentStage === 'PROLOGUE_CONSENT' ? 'active' : ''}" 
+        onclick={() => jumpToStage('PROLOGUE_CONSENT')}
+      >
+        <span>🌱</span> Prologue
+      </button>
+      <button 
+        type="button" 
+        class="chapter-pill {currentStage.includes('KARNATAKA') || currentStage === 'GAME1_SOWING' ? 'active' : ''}" 
+        onclick={() => jumpToStage('ACT1_KARNATAKA')}
+      >
+        <span>🌾</span> Act 1: Karnataka
+      </button>
+      <button 
+        type="button" 
+        class="chapter-pill {currentStage.includes('PUNJAB') || currentStage === 'GAME2_TUBEWELL' ? 'active' : ''}" 
+        onclick={() => jumpToStage('ACT2_PUNJAB')}
+      >
+        <span>💧</span> Act 2: Punjab
+      </button>
+      <button 
+        type="button" 
+        class="chapter-pill {currentStage.includes('IOWA') || currentStage === 'GAME3_SLUICE' ? 'active' : ''}" 
+        onclick={() => jumpToStage('ACT3_IOWA')}
+      >
+        <span>🌧️</span> Act 3: Iowa
+      </button>
+      <button 
+        type="button" 
+        class="chapter-pill {currentStage.includes('SAHEL') || currentStage === 'GAME4_HEATWAVE' ? 'active' : ''}" 
+        onclick={() => jumpToStage('ACT4_SAHEL')}
+      >
+        <span>☀️</span> Act 4: Sahel
+      </button>
+      <button 
+        type="button" 
+        class="chapter-pill {currentStage === 'ACT5_SUMMIT' ? 'active' : ''}" 
+        onclick={() => jumpToStage('ACT5_SUMMIT')}
+      >
+        <span>🌐</span> Act 5: Summit
+      </button>
+      <button 
+        type="button" 
+        class="chapter-pill {currentStage === 'FINALE_COMMUNITY' ? 'active' : ''}" 
+        onclick={() => jumpToStage('FINALE_COMMUNITY')}
+      >
+        <span>🏆</span> Finale
+      </button>
+    </div>
+
+    {#if onOpenOverworld}
+      <button type="button" class="overworld-jump-btn font-pixel" onclick={onOpenOverworld}>
+        <span>▲</span> [OPEN GBA OVERWORLD RPG]
+      </button>
+    {/if}
+  </header>
+
   {#if currentStage === 'PROLOGUE_CONSENT'}
     <!-- PROLOGUE: PEACEFUL SUNSET IN KISANPUR -->
     <div class="scene-screen-frame">
@@ -258,36 +331,43 @@
           </div>
         {/if}
 
-        <!-- Young Farmer Hari Sprite -->
-        <div class="character-sprite-holder">
-          <svg viewBox="0 0 64 64" width="84" height="84" shape-rendering="crispEdges">
-            <rect x="18" y="56" width="28" height="4" fill="rgba(0,0,0,0.3)" />
-            <rect x="16" y="16" width="32" height="6" fill="#FBBF24" />
-            <rect x="20" y="10" width="24" height="8" fill="#F59E0B" />
-            <rect x="20" y="14" width="24" height="3" fill="#92400E" />
-            <rect x="22" y="18" width="20" height="12" fill="#D29A72" />
-            <rect x="25" y="22" width="3" height="3" fill="#1C1917" />
-            <rect x="36" y="22" width="3" height="3" fill="#1C1917" />
-            <rect x="28" y="26" width="8" height="2" fill="#78350F" />
-            <rect x="18" y="30" width="28" height="16" fill="#22C55E" />
-            <rect x="22" y="32" width="20" height="16" fill="#2563EB" />
-            <rect x="24" y="34" width="2" height="2" fill="#FDE047" />
-            <rect x="38" y="34" width="2" height="2" fill="#FDE047" />
-            <rect x="12" y="38" width="6" height="6" fill="#4ADE80" />
-            <rect x="14" y="44" width="4" height="4" fill="#F97316" />
-            <rect x="44" y="36" width="8" height="12" fill="#B45309" />
-            <rect x="46" y="38" width="4" height="8" fill="#F59E0B" />
-            <rect x="22" y="48" width="7" height="8" fill="#78350F" />
-            <rect x="35" y="48" width="7" height="8" fill="#78350F" />
-          </svg>
+        <!-- Lively Animated Hari Character Sprite -->
+        <div class="lively-character-box">
+          <div class="floating-emote-bubble font-pixel">
+            <span>💡</span>
+            <span class="emote-text">HARI'S MISSION</span>
+          </div>
+
+          <div class="character-animated-sprite">
+            <svg viewBox="0 0 64 64" width="84" height="84" shape-rendering="crispEdges">
+              <rect x="16" y="16" width="32" height="6" fill="#FBBF24" />
+              <rect x="20" y="10" width="24" height="8" fill="#F59E0B" />
+              <rect x="20" y="14" width="24" height="3" fill="#92400E" />
+              <rect x="22" y="18" width="20" height="12" fill="#D29A72" />
+              <rect x="25" y="22" width="3" height="3" fill="#1C1917" />
+              <rect x="36" y="22" width="3" height="3" fill="#1C1917" />
+              <rect x="28" y="26" width="8" height="2" fill="#78350F" />
+              <rect x="18" y="30" width="28" height="16" fill="#22C55E" />
+              <rect x="22" y="32" width="20" height="16" fill="#2563EB" />
+              <rect x="24" y="34" width="2" height="2" fill="#FDE047" />
+              <rect x="38" y="34" width="2" height="2" fill="#FDE047" />
+              <rect x="12" y="38" width="6" height="6" fill="#4ADE80" />
+              <rect x="14" y="44" width="4" height="4" fill="#F97316" />
+              <rect x="44" y="36" width="8" height="12" fill="#B45309" />
+              <rect x="46" y="38" width="4" height="8" fill="#F59E0B" />
+              <rect x="22" y="48" width="7" height="8" fill="#78350F" />
+              <rect x="35" y="48" width="7" height="8" fill="#78350F" />
+            </svg>
+          </div>
+          <div class="character-ground-shadow"></div>
         </div>
 
-        <!-- Terminal Dialogue Box -->
+        <!-- Floating Speech Dialogue Box with pointer tail -->
         {#if hasStartedAdventure}
-          <div class="terminal-dialogue-box">
+          <div class="floating-speech-bubble" onclick={handleNextIntroLine} role="presentation">
             <div class="dialogue-box-inner">
-              <div class="dialogue-portrait-frame">
-                <svg viewBox="0 0 40 40" width="54" height="54" shape-rendering="crispEdges">
+              <div class="dialogue-portrait-frame {isTyping ? 'speaking-pulse' : ''}">
+                <svg viewBox="0 0 40 40" width="56" height="56" shape-rendering="crispEdges">
                   <rect width="40" height="40" fill="#142414" stroke="#00FF66" stroke-width="2" />
                   <rect x="8" y="8" width="24" height="4" fill="#FBBF24" />
                   <rect x="12" y="3" width="16" height="6" fill="#F59E0B" />
@@ -305,6 +385,7 @@
                 <div class="dialogue-header-badge font-pixel">
                   <span>[ HARI ]</span>
                   <span class="sub-role font-retro">Local Farmer & NASA Delegate</span>
+                  <span class="wisdom-tag">🌱 ANCESTRAL SEED-KEEPER</span>
                 </div>
 
                 <div class="dialogue-text-body font-retro">
@@ -317,7 +398,7 @@
                 <div class="dialogue-footer-strip">
                   {#if introDialogueStep < prologueLines.length - 1}
                     <button type="button" class="click-to-continue-btn font-pixel" onclick={handleNextIntroLine}>
-                      ▼ CLICK TO CONTINUE ▼
+                      ▼ CLICK ANYWHERE TO CONTINUE ▼
                     </button>
                   {:else}
                     <div class="consent-buttons-row">
@@ -357,31 +438,45 @@
           <polygon points="745,340 820,290 895,340" fill="#E76F51" stroke="#2B1B12" stroke-width="3" />
         </svg>
 
-        <!-- Amma Standing Sprite -->
-        <div class="character-sprite-holder amma-sprite">
-          <svg viewBox="0 0 64 64" width="88" height="88" shape-rendering="crispEdges">
-            <rect x="18" y="58" width="28" height="4" fill="rgba(0,0,0,0.35)" />
-            <rect x="26" y="8" width="12" height="10" fill="#E5E7EB" />
-            <rect x="24" y="6" width="6" height="4" fill="#FFFFFF" />
-            <rect x="22" y="16" width="20" height="14" fill="#B45309" />
-            <rect x="31" y="18" width="2" height="2" fill="#DC2626" />
-            <rect x="25" y="22" width="3" height="2" fill="#1C1917" />
-            <rect x="36" y="22" width="3" height="2" fill="#1C1917" />
-            <rect x="28" y="26" width="8" height="2" fill="#78350F" />
-            <rect x="18" y="30" width="28" height="26" fill="#F59E0B" />
-            <polygon points="20,30 38,30 24,56 18,56" fill="#B91C1C" />
-            <rect x="18" y="54" width="28" height="3" fill="#FDE047" />
-            <rect x="24" y="38" width="16" height="5" fill="#D97706" />
-            <rect x="26" y="36" width="12" height="3" fill="#FEF08A" />
-            <rect x="24" y="56" width="6" height="4" fill="#78350F" />
-            <rect x="34" y="56" width="6" height="4" fill="#78350F" />
-          </svg>
+        <!-- NASA SMAP Satellite Telemetry Card Popout -->
+        <div class="telemetry-hud-card font-pixel">
+          <span class="telemetry-badge">🛰️ NASA SMAP L4</span>
+          <span class="telemetry-stat">Root-Zone Wetness: 0.28 m³/m³ @ 5cm Depth</span>
+          <span class="telemetry-note font-retro">Optimal Sowing Window: Next 48 Hours</span>
         </div>
 
-        <!-- Amma Dialogue Box -->
-        <div class="terminal-dialogue-box amma-box">
+        <!-- Lively Animated Amma Character Sprite -->
+        <div class="lively-character-box amma-sprite">
+          <div class="floating-emote-bubble amma-bubble font-pixel">
+            <span>🌾</span>
+            <span class="emote-text">AMMA'S HEIRLOOM RAGI</span>
+          </div>
+
+          <div class="character-animated-sprite">
+            <svg viewBox="0 0 64 64" width="88" height="88" shape-rendering="crispEdges">
+              <rect x="26" y="8" width="12" height="10" fill="#E5E7EB" />
+              <rect x="24" y="6" width="6" height="4" fill="#FFFFFF" />
+              <rect x="22" y="16" width="20" height="14" fill="#B45309" />
+              <rect x="31" y="18" width="2" height="2" fill="#DC2626" />
+              <rect x="25" y="22" width="3" height="2" fill="#1C1917" />
+              <rect x="36" y="22" width="3" height="2" fill="#1C1917" />
+              <rect x="28" y="26" width="8" height="2" fill="#78350F" />
+              <rect x="18" y="30" width="28" height="26" fill="#F59E0B" />
+              <polygon points="20,30 38,30 24,56 18,56" fill="#B91C1C" />
+              <rect x="18" y="54" width="28" height="3" fill="#FDE047" />
+              <rect x="24" y="38" width="16" height="5" fill="#D97706" />
+              <rect x="26" y="36" width="12" height="3" fill="#FEF08A" />
+              <rect x="24" y="56" width="6" height="4" fill="#78350F" />
+              <rect x="34" y="56" width="6" height="4" fill="#78350F" />
+            </svg>
+          </div>
+          <div class="character-ground-shadow"></div>
+        </div>
+
+        <!-- Floating Amma Speech Bubble -->
+        <div class="floating-speech-bubble amma-bubble-frame">
           <div class="dialogue-box-inner">
-            <div class="dialogue-portrait-frame amma-portrait">
+            <div class="dialogue-portrait-frame amma-portrait {isTyping ? 'speaking-pulse' : ''}">
               <svg viewBox="0 0 40 40" width="58" height="58" shape-rendering="crispEdges">
                 <rect width="40" height="40" fill="#241208" stroke="#FFB703" stroke-width="2" />
                 <rect x="15" y="4" width="10" height="6" fill="#E5E7EB" />
@@ -400,6 +495,7 @@
               <div class="dialogue-header-badge font-pixel" style="color: #FFB703;">
                 <span>[ AMMA ]</span>
                 <span class="sub-role font-retro">Farm Matriarch (Deccan Plateau)</span>
+                <span class="wisdom-tag">🌾 HEIRLOOM KNOWLEDGE</span>
               </div>
 
               <div class="dialogue-text-body font-retro">
@@ -437,42 +533,49 @@
         <svg viewBox="0 0 960 540" class="panorama-svg" preserveAspectRatio="xMidYMid slice" shape-rendering="crispEdges">
           <rect x="0" y="0" width="960" height="240" fill="#87CEEB" />
           <rect x="0" y="240" width="960" height="300" fill="#2E7D32" />
-          <!-- Irrigation Ditch -->
           <polygon points="200,540 380,240 460,240 340,540" fill="#0088cc" />
-          <!-- Heavy Diesel Tubewell Machine -->
           <rect x="680" y="220" width="140" height="100" fill="#475569" stroke="#1E293B" stroke-width="3" />
           <rect x="720" y="180" width="20" height="40" fill="#334155" />
-          <!-- Black Diesel Smoke Puff -->
           <circle cx="730" cy="160" r="14" fill="#64748B" opacity="0.8" />
           <circle cx="740" cy="140" r="20" fill="#94A3B8" opacity="0.6" />
         </svg>
 
-        <!-- Gurpreet Standing Sprite -->
-        <div class="character-sprite-holder">
-          <svg viewBox="0 0 64 64" width="88" height="88" shape-rendering="crispEdges">
-            <rect x="18" y="58" width="28" height="4" fill="rgba(0,0,0,0.35)" />
-            <!-- Saffron Turban -->
-            <rect x="18" y="8" width="28" height="12" fill="#F59E0B" />
-            <rect x="22" y="4" width="20" height="6" fill="#D97706" />
-            <!-- Face with dark beard -->
-            <rect x="22" y="20" width="20" height="14" fill="#B45309" />
-            <rect x="20" y="26" width="24" height="10" fill="#1C1917" />
-            <!-- Eyes -->
-            <rect x="25" y="24" width="3" height="2" fill="#FFFFFF" />
-            <rect x="36" y="24" width="3" height="2" fill="#FFFFFF" />
-            <!-- White Kurta with Navy Waistcoat -->
-            <rect x="18" y="34" width="28" height="22" fill="#F8FAFC" />
-            <rect x="18" y="34" width="6" height="16" fill="#1E3A8A" />
-            <rect x="40" y="34" width="6" height="16" fill="#1E3A8A" />
-            <rect x="22" y="54" width="7" height="6" fill="#475569" />
-            <rect x="35" y="54" width="7" height="6" fill="#475569" />
-          </svg>
+        <!-- NASA GRACE Telemetry Card Popout -->
+        <div class="telemetry-hud-card font-pixel" style="border-color: #00ffff;">
+          <span class="telemetry-badge" style="color: #00ffff; border-color: #00ffff;">📡 NASA GRACE-FO</span>
+          <span class="telemetry-stat">Subsurface Mass Deficit: -3.2 cm/yr Equiv Water Loss</span>
+          <span class="telemetry-note font-retro">Aquifer Extraction Rate: 165% of Natural Recharge</span>
         </div>
 
-        <!-- Gurpreet Dialogue Box -->
-        <div class="terminal-dialogue-box">
+        <!-- Lively Animated Gurpreet Character Sprite -->
+        <div class="lively-character-box">
+          <div class="floating-emote-bubble gurpreet-bubble font-pixel">
+            <span>💧</span>
+            <span class="emote-text">AQUIFER CRITICAL</span>
+          </div>
+
+          <div class="character-animated-sprite">
+            <svg viewBox="0 0 64 64" width="88" height="88" shape-rendering="crispEdges">
+              <rect x="18" y="8" width="28" height="12" fill="#F59E0B" />
+              <rect x="22" y="4" width="20" height="6" fill="#D97706" />
+              <rect x="22" y="20" width="20" height="14" fill="#B45309" />
+              <rect x="20" y="26" width="24" height="10" fill="#1C1917" />
+              <rect x="25" y="24" width="3" height="2" fill="#FFFFFF" />
+              <rect x="36" y="24" width="3" height="2" fill="#FFFFFF" />
+              <rect x="18" y="34" width="28" height="22" fill="#F8FAFC" />
+              <rect x="18" y="34" width="6" height="16" fill="#1E3A8A" />
+              <rect x="40" y="34" width="6" height="16" fill="#1E3A8A" />
+              <rect x="22" y="54" width="7" height="6" fill="#475569" />
+              <rect x="35" y="54" width="7" height="6" fill="#475569" />
+            </svg>
+          </div>
+          <div class="character-ground-shadow"></div>
+        </div>
+
+        <!-- Floating Gurpreet Speech Bubble -->
+        <div class="floating-speech-bubble gurpreet-bubble-frame">
           <div class="dialogue-box-inner">
-            <div class="dialogue-portrait-frame">
+            <div class="dialogue-portrait-frame {isTyping ? 'speaking-pulse' : ''}">
               <svg viewBox="0 0 40 40" width="58" height="58" shape-rendering="crispEdges">
                 <rect width="40" height="40" fill="#0c1e28" stroke="#00ffff" stroke-width="2" />
                 <rect x="8" y="4" width="24" height="10" fill="#F59E0B" />
@@ -491,6 +594,7 @@
               <div class="dialogue-header-badge font-pixel" style="color: #00ffff;">
                 <span>[ GURPREET ]</span>
                 <span class="sub-role font-retro">Wheat & Rice Farmer (Punjab Plain)</span>
+                <span class="wisdom-tag" style="border-color: #00ffff; color: #00ffff;">📡 SATELLITE WARNING</span>
               </div>
 
               <div class="dialogue-text-body font-retro">
@@ -526,46 +630,53 @@
       <div class="panoramic-canvas-stage">
         <!-- Rolling Prairie with Storm Clouds -->
         <svg viewBox="0 0 960 540" class="panorama-svg" preserveAspectRatio="xMidYMid slice" shape-rendering="crispEdges">
-          <!-- Dark Storm Sky -->
           <rect x="0" y="0" width="960" height="220" fill="#1e1b4b" />
           <circle cx="200" cy="80" r="70" fill="#312e81" opacity="0.9" />
           <circle cx="360" cy="70" r="90" fill="#4338ca" opacity="0.8" />
           <circle cx="580" cy="90" r="80" fill="#312e81" opacity="0.9" />
-          <!-- Rolling Green/Black Soil Hills -->
           <polygon points="0,220 320,180 640,240 960,200 960,540 0,540" fill="#1c1917" />
           <path d="M 0 280 Q 240 240 480 290 T 960 260 L 960 540 L 0 540 Z" fill="#1e293b" />
           <path d="M 0 350 Q 300 310 620 360 T 960 330 L 960 540 L 0 540 Z" fill="#14532d" />
-          <!-- Traditional Red Barn -->
           <rect x="740" y="240" width="130" height="80" fill="#b91c1c" stroke="#450a0a" stroke-width="3" />
           <polygon points="720,240 805,180 890,240" fill="#ffffff" stroke="#450a0a" stroke-width="3" />
         </svg>
 
-        <!-- Sarah Standing Sprite -->
-        <div class="character-sprite-holder">
-          <svg viewBox="0 0 64 64" width="88" height="88" shape-rendering="crispEdges">
-            <rect x="18" y="58" width="28" height="4" fill="rgba(0,0,0,0.35)" />
-            <!-- Denim Cap -->
-            <rect x="18" y="10" width="26" height="6" fill="#1D4ED8" />
-            <rect x="16" y="14" width="14" height="3" fill="#1E40AF" />
-            <!-- Brunette Ponytail -->
-            <rect x="42" y="14" width="6" height="12" fill="#78350F" />
-            <!-- Face -->
-            <rect x="22" y="16" width="20" height="14" fill="#FBCFE8" />
-            <rect x="25" y="20" width="3" height="2" fill="#1E293B" />
-            <rect x="36" y="20" width="3" height="2" fill="#1E293B" />
-            <rect x="28" y="25" width="8" height="2" fill="#BE185D" />
-            <!-- Red Plaid Shirt & Overalls -->
-            <rect x="18" y="30" width="28" height="20" fill="#DC2626" />
-            <rect x="22" y="34" width="20" height="18" fill="#1E40AF" />
-            <rect x="22" y="52" width="7" height="6" fill="#78350F" />
-            <rect x="35" y="52" width="7" height="6" fill="#78350F" />
-          </svg>
+        <!-- NASA GPM Radar Telemetry Card Popout -->
+        <div class="telemetry-hud-card font-pixel" style="border-color: #38bdf8;">
+          <span class="telemetry-badge" style="color: #38bdf8; border-color: #38bdf8;">🌧️ NASA GPM RADAR</span>
+          <span class="telemetry-stat">Extreme Precipitation Surge: 92 mm/hr Peak Rate</span>
+          <span class="telemetry-note font-retro">Sheet Runoff Risk: 85% on Unprotected Slopes</span>
         </div>
 
-        <!-- Sarah Dialogue Box -->
-        <div class="terminal-dialogue-box">
+        <!-- Lively Animated Sarah Character Sprite -->
+        <div class="lively-character-box">
+          <div class="floating-emote-bubble sarah-bubble font-pixel">
+            <span>⚡</span>
+            <span class="emote-text">GPM CLOUDBURST ALERT</span>
+          </div>
+
+          <div class="character-animated-sprite">
+            <svg viewBox="0 0 64 64" width="88" height="88" shape-rendering="crispEdges">
+              <rect x="18" y="10" width="26" height="6" fill="#1D4ED8" />
+              <rect x="16" y="14" width="14" height="3" fill="#1E40AF" />
+              <rect x="42" y="14" width="6" height="12" fill="#78350F" />
+              <rect x="22" y="16" width="20" height="14" fill="#FBCFE8" />
+              <rect x="25" y="20" width="3" height="2" fill="#1E293B" />
+              <rect x="36" y="20" width="3" height="2" fill="#1E293B" />
+              <rect x="28" y="25" width="8" height="2" fill="#BE185D" />
+              <rect x="18" y="30" width="28" height="20" fill="#DC2626" />
+              <rect x="22" y="34" width="20" height="18" fill="#1E40AF" />
+              <rect x="22" y="52" width="7" height="6" fill="#78350F" />
+              <rect x="35" y="52" width="7" height="6" fill="#78350F" />
+            </svg>
+          </div>
+          <div class="character-ground-shadow"></div>
+        </div>
+
+        <!-- Floating Sarah Speech Bubble -->
+        <div class="floating-speech-bubble sarah-bubble-frame">
           <div class="dialogue-box-inner">
-            <div class="dialogue-portrait-frame">
+            <div class="dialogue-portrait-frame {isTyping ? 'speaking-pulse' : ''}">
               <svg viewBox="0 0 40 40" width="58" height="58" shape-rendering="crispEdges">
                 <rect width="40" height="40" fill="#111c2e" stroke="#38bdf8" stroke-width="2" />
                 <rect x="10" y="6" width="20" height="6" fill="#1D4ED8" />
@@ -583,6 +694,7 @@
               <div class="dialogue-header-badge font-pixel" style="color: #38bdf8;">
                 <span>[ SARAH ]</span>
                 <span class="sub-role font-retro">Prairie Conservationist (Iowa Corn Belt)</span>
+                <span class="wisdom-tag" style="border-color: #38bdf8; color: #38bdf8;">🌾 PRAIRIE RYE BUFFERS</span>
               </div>
 
               <div class="dialogue-text-body font-retro">
@@ -607,7 +719,7 @@
     <SluiceRunoffGame onComplete={handleSluiceComplete} />
 
   {:else if currentStage === 'ACT4_SAHEL'}
-    <!-- ACT 4: SAHEL / KENYA (FARMER AMINA & NASA MERRA-2) -->
+    <!-- ACT 4: SAHEL (FARMER AMINA & NASA MERRA-2) -->
     <div class="scene-screen-frame">
       <div class="arcade-header-bar">
         <div class="arcade-corn-glyphs font-pixel">|||</div>
@@ -621,39 +733,47 @@
           <rect x="0" y="0" width="960" height="240" fill="#FFF7ED" />
           <circle cx="800" cy="120" r="50" fill="#FDBA74" />
           <rect x="0" y="240" width="960" height="300" fill="#D97706" />
-          <!-- Sand Dunes -->
           <polygon points="0,320 280,260 560,330 840,270 960,300 960,540 0,540" fill="#B45309" />
-          <!-- Thorny Acacia Tree -->
           <rect x="680" y="200" width="16" height="80" fill="#78350F" />
           <ellipse cx="688" cy="190" rx="60" ry="18" fill="#15803D" />
           <ellipse cx="688" cy="170" rx="40" ry="14" fill="#166534" />
         </svg>
 
-        <!-- Amina Standing Sprite -->
-        <div class="character-sprite-holder">
-          <svg viewBox="0 0 64 64" width="88" height="88" shape-rendering="crispEdges">
-            <rect x="18" y="58" width="28" height="4" fill="rgba(0,0,0,0.35)" />
-            <!-- Indigo Headwrap -->
-            <rect x="18" y="6" width="28" height="14" fill="#4338CA" />
-            <rect x="22" y="2" width="20" height="6" fill="#312E81" />
-            <!-- Bronze Skin -->
-            <rect x="22" y="20" width="20" height="14" fill="#9A3412" />
-            <!-- Gold Earring -->
-            <rect x="19" y="24" width="2" height="4" fill="#FDE047" />
-            <rect x="25" y="24" width="3" height="2" fill="#FFFFFF" />
-            <rect x="36" y="24" width="3" height="2" fill="#FFFFFF" />
-            <rect x="28" y="29" width="8" height="2" fill="#451A03" />
-            <!-- Green Savanna Tunic -->
-            <rect x="18" y="34" width="28" height="22" fill="#15803D" />
-            <rect x="22" y="56" width="6" height="4" fill="#78350F" />
-            <rect x="34" y="56" width="6" height="4" fill="#78350F" />
-          </svg>
+        <!-- NASA MERRA-2 Telemetry Card Popout -->
+        <div class="telemetry-hud-card font-pixel" style="border-color: #f97316;">
+          <span class="telemetry-badge" style="color: #f97316; border-color: #f97316;">☀️ NASA MERRA-2</span>
+          <span class="telemetry-stat">Extreme Heat Dome Anomaly: +4.8°C (Peak 46.4°C)</span>
+          <span class="telemetry-note font-retro">ECOSTRESS Alert: Evapotranspiration Shutoff Imminent</span>
         </div>
 
-        <!-- Amina Dialogue Box -->
-        <div class="terminal-dialogue-box">
+        <!-- Lively Animated Amina Character Sprite -->
+        <div class="lively-character-box">
+          <div class="floating-emote-bubble amina-bubble font-pixel">
+            <span>🔥</span>
+            <span class="emote-text">ZAÏ PIT HEAT SHIELD</span>
+          </div>
+
+          <div class="character-animated-sprite">
+            <svg viewBox="0 0 64 64" width="88" height="88" shape-rendering="crispEdges">
+              <rect x="18" y="6" width="28" height="14" fill="#4338CA" />
+              <rect x="22" y="2" width="20" height="6" fill="#312E81" />
+              <rect x="22" y="20" width="20" height="14" fill="#9A3412" />
+              <rect x="19" y="24" width="2" height="4" fill="#FDE047" />
+              <rect x="25" y="24" width="3" height="2" fill="#FFFFFF" />
+              <rect x="36" y="24" width="3" height="2" fill="#FFFFFF" />
+              <rect x="28" y="29" width="8" height="2" fill="#451A03" />
+              <rect x="18" y="34" width="28" height="22" fill="#15803D" />
+              <rect x="22" y="56" width="6" height="4" fill="#78350F" />
+              <rect x="34" y="56" width="6" height="4" fill="#78350F" />
+            </svg>
+          </div>
+          <div class="character-ground-shadow"></div>
+        </div>
+
+        <!-- Floating Amina Speech Bubble -->
+        <div class="floating-speech-bubble amina-bubble-frame">
           <div class="dialogue-box-inner">
-            <div class="dialogue-portrait-frame">
+            <div class="dialogue-portrait-frame {isTyping ? 'speaking-pulse' : ''}">
               <svg viewBox="0 0 40 40" width="58" height="58" shape-rendering="crispEdges">
                 <rect width="40" height="40" fill="#24100c" stroke="#f97316" stroke-width="2" />
                 <rect x="8" y="3" width="24" height="12" fill="#4338CA" />
@@ -670,7 +790,8 @@
             <div class="dialogue-text-column">
               <div class="dialogue-header-badge font-pixel" style="color: #f97316;">
                 <span>[ AMINA ]</span>
-                <span class="sub-role font-retro">Zaï Pit Specialist (Sahel / Kenya)</span>
+                <span class="sub-role font-retro">Zaï Pit Specialist (Sahel / Senegal)</span>
+                <span class="wisdom-tag" style="border-color: #f97316; color: #f97316;">🌵 ANCESTRAL ZAÏ BASINS</span>
               </div>
 
               <div class="dialogue-text-body font-retro">
@@ -749,22 +870,24 @@
               <strong style="color: #00ffff;">Zero Topsoil Lost in 90mm Cloudbursts</strong>
             </div>
             <div class="score-row">
-              <span>NASA MERRA-2 46°C Heatwave Defense:</span>
-              <strong style="color: #FFB703;">100% Crop Survival via Zaï Pits & Mulch</strong>
+              <span>NASA SMAP Precision Root Moisture:</span>
+              <strong style="color: #FFB703;">98% Seed Emergence Across 4 Biomes</strong>
             </div>
             <div class="score-row">
-              <span>Smallholder Economic Net Margin:</span>
-              <strong style="color: #00FF66;">3.2x Higher Profit than Monoculture</strong>
+              <span>NASA MERRA-2 Canopy Thermal Protection:</span>
+              <strong style="color: #f97316;">Bio-Shield Maintained Stomata Transpiration</strong>
             </div>
           </div>
 
           <div class="finale-actions-row">
-            <button type="button" class="nes-btn is-success font-pixel" onclick={() => { if (onOpenOverworld) onOpenOverworld(); }}>
-              [◆ ENTER 2D GBA OVERWORLD]
+            <button type="button" class="pixel-btn btn-warning" onclick={handlePlayAgain}>
+              ↺ REPLAY STORY CAMPAIGN
             </button>
-            <button type="button" class="nes-btn is-primary font-pixel" onclick={handlePlayAgain}>
-              [▲ PLAY STORY CAMPAIGN AGAIN]
-            </button>
+            {#if onOpenOverworld}
+              <button type="button" class="pixel-btn btn-explore font-pixel" onclick={onOpenOverworld}>
+                ▲ EXPLORE FREE-ROAM GBA OVERWORLD →
+              </button>
+            {/if}
           </div>
         </div>
       </div>
@@ -775,35 +898,109 @@
 <style>
   .hari-arcade-viewport {
     width: 100%;
-    max-width: 960px;
+    max-width: 1040px;
     margin: 0 auto;
-    background: #000;
+    padding: 12px;
+    background: #060c07;
   }
 
-  .scene-screen-frame {
-    border: 3px solid #00FF66;
-    box-shadow: 0 0 20px rgba(0, 255, 102, 0.3);
-    overflow: hidden;
-    background: #000;
-  }
-
-  .arcade-header-bar {
+  /* Chapter Fast-Travel & Navigation Rail */
+  .story-chapter-strip {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #060e0a;
+    gap: 8px;
+    background: linear-gradient(180deg, #0d1e13 0%, #08110b 100%);
+    border: 2px solid #00FF66;
+    border-radius: 6px;
+    padding: 6px 12px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6), 0 0 10px rgba(0, 255, 102, 0.2);
+    flex-wrap: wrap;
+  }
+
+  .strip-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .chapter-strip-title {
+    font-size: 8px;
+    color: #FFB703;
+    margin-right: 4px;
+  }
+
+  .chapter-pill {
+    background: #112417;
+    border: 1px solid #1f4229;
+    color: #88a896;
+    font-size: 8px;
+    padding: 3px 6px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .chapter-pill:hover {
+    color: #00FF66;
+    border-color: #00FF66;
+  }
+
+  .chapter-pill.active {
+    background: #00FF66;
+    color: #000000;
+    font-weight: bold;
+    border-color: #000000;
+    box-shadow: 0 0 8px rgba(0, 255, 102, 0.5);
+  }
+
+  .overworld-jump-btn {
+    background: #2a1f0a;
+    border: 1px solid #FFB703;
+    color: #FFB703;
+    font-size: 8px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .overworld-jump-btn:hover {
+    background: #FFB703;
+    color: #000000;
+    box-shadow: 0 0 10px rgba(255, 183, 3, 0.5);
+  }
+
+  /* Scene Frames */
+  .scene-screen-frame {
+    background: #08120b;
+    border: 3px solid #00FF66;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 255, 102, 0.2);
+  }
+
+  .arcade-header-bar {
+    background: #060e08;
     border-bottom: 2px solid #00FF66;
     padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   .arcade-corn-glyphs {
     color: #FFB703;
-    font-size: 14px;
-    letter-spacing: 2px;
+    font-size: 12px;
   }
 
   .arcade-header-title {
-    font-size: 11px;
+    font-size: 10px;
     color: #00FF66;
     letter-spacing: 1px;
   }
@@ -834,46 +1031,209 @@
   .start-adventure-hero-btn {
     background: #FFB703;
     color: #000;
-    border: 4px solid #000;
-    box-shadow: 0 0 20px #FFB703;
+    border: 3px solid #000;
+    box-shadow: 0 0 25px rgba(255, 183, 3, 0.7);
     font-size: 12px;
     padding: 16px 28px;
     cursor: pointer;
     letter-spacing: 1px;
     transition: all 0.15s ease;
+    animation: heroPulse 1.8s infinite alternate;
   }
 
-  .start-adventure-hero-btn:hover {
-    transform: scale(1.05);
-    background: #FFE082;
+  @keyframes heroPulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.06); }
   }
 
-  .character-sprite-holder {
+  /* NASA Telemetry HUD Badge inside Panoramic Scene */
+  .telemetry-hud-card {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    z-index: 30;
+    background: rgba(5, 14, 9, 0.88);
+    border: 2px solid #00FF66;
+    border-radius: 4px;
+    padding: 6px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+  }
+
+  .telemetry-badge {
+    font-size: 8px;
+    color: #00FF66;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+    padding-bottom: 2px;
+  }
+
+  .telemetry-stat {
+    font-size: 8px;
+    color: #ffffff;
+    font-weight: bold;
+  }
+
+  .telemetry-note {
+    font-size: 9px;
+    color: #88a896;
+  }
+
+  /* Lively Animated Character Sprites */
+  .lively-character-box {
     position: absolute;
     bottom: 20px;
-    left: 40px;
-    z-index: 20;
+    left: 45px;
+    z-index: 25;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
-  .character-sprite-holder.amma-sprite {
-    left: 50px;
+  .lively-character-box.amma-sprite {
+    left: 55px;
   }
 
-  .terminal-dialogue-box {
-    position: absolute;
-    bottom: 16px;
-    left: 140px;
-    right: 24px;
-    z-index: 30;
-    background: rgba(8, 14, 10, 0.94);
-    border: 3px solid #00FF66;
-    box-shadow: 0 0 15px rgba(0, 255, 102, 0.25);
-    padding: 14px;
+  .floating-emote-bubble {
+    background: rgba(8, 20, 13, 0.95);
+    border: 2px solid #00FF66;
+    color: #00FF66;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 7.5px;
+    margin-bottom: 4px;
+    box-shadow: 0 0 10px rgba(0, 255, 102, 0.4);
+    animation: emoteFloat 2.2s ease-in-out infinite alternate;
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
 
-  .terminal-dialogue-box.amma-box {
+  .floating-emote-bubble.amma-bubble {
     border-color: #FFB703;
-    box-shadow: 0 0 15px rgba(255, 183, 3, 0.25);
+    color: #FFB703;
+    box-shadow: 0 0 10px rgba(255, 183, 3, 0.4);
+  }
+
+  .floating-emote-bubble.gurpreet-bubble {
+    border-color: #00ffff;
+    color: #00ffff;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+  }
+
+  .floating-emote-bubble.sarah-bubble {
+    border-color: #38bdf8;
+    color: #38bdf8;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+  }
+
+  .floating-emote-bubble.amina-bubble {
+    border-color: #f97316;
+    color: #f97316;
+    box-shadow: 0 0 10px rgba(249, 115, 22, 0.4);
+  }
+
+  @keyframes emoteFloat {
+    from { transform: translateY(0); }
+    to { transform: translateY(-5px); }
+  }
+
+  .character-animated-sprite {
+    animation: characterBreathe 2.4s ease-in-out infinite alternate;
+    transform-origin: bottom center;
+  }
+
+  @keyframes characterBreathe {
+    0% { transform: translateY(0) scale(1, 1); }
+    50% { transform: translateY(-4px) scale(1.02, 0.98); }
+    100% { transform: translateY(0) scale(1, 1); }
+  }
+
+  .character-ground-shadow {
+    width: 44px;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.45);
+    border-radius: 50%;
+    margin-top: -6px;
+    animation: shadowScale 2.4s ease-in-out infinite alternate;
+  }
+
+  @keyframes shadowScale {
+    0% { transform: scale(1); opacity: 0.45; }
+    50% { transform: scale(0.85); opacity: 0.3; }
+    100% { transform: scale(1); opacity: 0.45; }
+  }
+
+  /* True Floating Speech Bubble Box */
+  .floating-speech-bubble {
+    position: absolute;
+    bottom: 22px;
+    left: 170px;
+    right: 28px;
+    z-index: 35;
+    background: linear-gradient(135deg, rgba(11, 24, 16, 0.96) 0%, rgba(6, 15, 10, 0.98) 100%);
+    border: 3px solid #00FF66;
+    border-radius: 8px;
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 255, 102, 0.28);
+    backdrop-filter: blur(10px);
+    padding: 16px 20px;
+    animation: floatDialogueBox 3.2s ease-in-out infinite alternate;
+  }
+
+  .floating-speech-bubble::before {
+    content: '';
+    position: absolute;
+    bottom: 24px;
+    left: -14px;
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-right: 14px solid #00FF66;
+  }
+
+  .floating-speech-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: 26px;
+    left: -10px;
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 11px solid #08120b;
+  }
+
+  .amma-bubble-frame {
+    border-color: #FFB703;
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 183, 3, 0.28);
+  }
+  .amma-bubble-frame::before { border-right-color: #FFB703; }
+
+  .gurpreet-bubble-frame {
+    border-color: #00ffff;
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 255, 255, 0.28);
+  }
+  .gurpreet-bubble-frame::before { border-right-color: #00ffff; }
+
+  .sarah-bubble-frame {
+    border-color: #38bdf8;
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.8), 0 0 20px rgba(56, 189, 248, 0.28);
+  }
+  .sarah-bubble-frame::before { border-right-color: #38bdf8; }
+
+  .amina-bubble-frame {
+    border-color: #f97316;
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.8), 0 0 20px rgba(249, 115, 22, 0.28);
+  }
+  .amina-bubble-frame::before { border-right-color: #f97316; }
+
+  @keyframes floatDialogueBox {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+    100% { transform: translateY(0); }
   }
 
   .dialogue-box-inner {
@@ -886,6 +1246,15 @@
     flex-shrink: 0;
     border: 2px solid #00FF66;
     background: #000;
+  }
+
+  .dialogue-portrait-frame.speaking-pulse {
+    animation: portraitPulse 0.4s infinite alternate;
+  }
+
+  @keyframes portraitPulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.04); }
   }
 
   .dialogue-portrait-frame.amma-portrait {
@@ -904,6 +1273,15 @@
     gap: 8px;
     align-items: center;
     font-size: 10px;
+    color: #00FF66;
+    flex-wrap: wrap;
+  }
+
+  .wisdom-tag {
+    font-size: 8px;
+    border: 1px solid #00FF66;
+    padding: 1px 5px;
+    border-radius: 2px;
     color: #00FF66;
   }
 
@@ -960,6 +1338,7 @@
     padding: 8px 12px;
     cursor: pointer;
     border: 2px solid;
+    transition: all 0.15s ease;
   }
 
   .consent-btn.yes {
@@ -1001,6 +1380,17 @@
 
   .btn-warning:hover {
     background: #FFB703;
+    color: #000;
+  }
+
+  .btn-explore {
+    background: #0c1a10;
+    border-color: #00FF66;
+    color: #00FF66;
+  }
+
+  .btn-explore:hover {
+    background: #00FF66;
     color: #000;
   }
 
@@ -1085,5 +1475,6 @@
     display: flex;
     gap: 12px;
     justify-content: center;
+    flex-wrap: wrap;
   }
 </style>

@@ -1,4 +1,4 @@
-import type { CollisionBox, InteractiveEntity, DialogueNode } from './types';
+import type { CollisionBox, InteractiveEntity, DialogueNode, FloatingBox } from './types';
 
 export const WORLD_WIDTH = 960;
 export const WORLD_HEIGHT = 720;
@@ -17,7 +17,7 @@ export const COLLISION_OBSTACLES: CollisionBox[] = [
   { x: 600, y: 220, width: 80, height: 20 },
   { x: 780, y: 220, width: 80, height: 20 },
 
-  // Seed Storage Shed (Top Left: x: 100, y: 90, w: 140, h: 100)
+  // Seed Storage Shed / Solar Kiosk (Top Left: x: 100, y: 90, w: 140, h: 100)
   { x: 100, y: 90, width: 140, height: 100 },
 
   // Sacred Banyan Tree (Center Top: x: 420, y: 70, w: 120, h: 110)
@@ -43,13 +43,13 @@ export const COLLISION_OBSTACLES: CollisionBox[] = [
   { x: 520, y: 470, width: 416, height: 22 }
 ];
 
-// Interactive Entities on the Overworld
+// Interactive Entities on the Overworld - Cleaned up to anchor the 4 key missions
 export const INTERACTIVE_ENTITIES: InteractiveEntity[] = [
   {
     id: 'amma',
     type: 'npc_amma',
-    name: 'Amma',
-    promptText: 'Talk to Amma',
+    name: "Amma's Veranda (Heirloom Seeds)",
+    promptText: '[A] Talk to Amma [Mission 1: Match Seeds]',
     x: 710,
     y: 220,
     width: 32,
@@ -58,22 +58,22 @@ export const INTERACTIVE_ENTITIES: InteractiveEntity[] = [
     dialogueId: 'amma_greeting'
   },
   {
-    id: 'tubewell',
-    type: 'tubewell',
-    name: 'Ancestral Tubewell Pump',
-    promptText: 'Inspect Borewell (GRACE Data)',
-    x: 820,
-    y: 380,
-    width: 60,
-    height: 50,
-    interactionRadius: 75,
-    dialogueId: 'tubewell_inspect'
+    id: 'banyan_tree',
+    type: 'banyan_tree',
+    name: 'Sacred Banyan & Agronomist Council',
+    promptText: '[A] Consult Dr. Rao [Mission 2: Fill Blanks]',
+    x: 440,
+    y: 130,
+    width: 80,
+    height: 70,
+    interactionRadius: 80,
+    dialogueId: 'agronomist_consult'
   },
   {
     id: 'weather_station',
     type: 'weather_station',
-    name: 'Village Weather Post',
-    promptText: 'Check Rain Gauge (NASA POWER)',
+    name: 'Satellite Weather Post & Relay',
+    promptText: '[A] Answer Satellite Call [Mission 3: America]',
     x: 80,
     y: 370,
     width: 50,
@@ -82,10 +82,34 @@ export const INTERACTIVE_ENTITIES: InteractiveEntity[] = [
     dialogueId: 'weather_station_inspect'
   },
   {
+    id: 'seed_shed',
+    type: 'seed_shed',
+    name: 'Global Agro-Ecology Solar Kiosk',
+    promptText: '[A] Watch Field Broadcast [Mission 4: Kenya]',
+    x: 100,
+    y: 140,
+    width: 140,
+    height: 60,
+    interactionRadius: 75,
+    dialogueId: 'seed_shed_inspect'
+  },
+  {
+    id: 'tubewell',
+    type: 'tubewell',
+    name: 'Ancestral Tubewell Pump',
+    promptText: '[A] Inspect Borewell (NASA GRACE)',
+    x: 820,
+    y: 380,
+    width: 60,
+    height: 50,
+    interactionRadius: 75,
+    dialogueId: 'tubewell_inspect'
+  },
+  {
     id: 'crop_plot_north',
     type: 'crop_plot_north',
     name: 'North Terraced Field (Paddy/Millet)',
-    promptText: 'Inspect Soil & Plan Rotation',
+    promptText: '[A] Inspect Soil & Precision Sowing',
     x: 200,
     y: 300,
     width: 180,
@@ -97,41 +121,20 @@ export const INTERACTIVE_ENTITIES: InteractiveEntity[] = [
     id: 'crop_plot_south',
     type: 'crop_plot_south',
     name: 'South Field (Legumes & Pulses)',
-    promptText: 'Inspect Nitrogen & Bio-Cover',
+    promptText: '[A] Inspect Nitrogen & Heatwave Shield',
     x: 240,
     y: 530,
     width: 200,
     height: 130,
     interactionRadius: 85,
     dialogueId: 'crop_south_inspect'
-  },
-  {
-    id: 'banyan_tree',
-    type: 'banyan_tree',
-    name: 'Banyan Tree & Village Agronomist',
-    promptText: 'Consult Local Agronomist',
-    x: 440,
-    y: 130,
-    width: 80,
-    height: 70,
-    interactionRadius: 80,
-    dialogueId: 'agronomist_consult'
-  },
-  {
-    id: 'seed_shed',
-    type: 'seed_shed',
-    name: 'Ancestral Seed Shed',
-    promptText: 'Examine Seed Stocks',
-    x: 100,
-    y: 140,
-    width: 140,
-    height: 60,
-    interactionRadius: 70,
-    dialogueId: 'seed_shed_inspect'
   }
 ];
 
-// Dialogue Graph with portraits and choices
+// Cleaned up: Floating boxes removed from overworld per user request
+export const FLOATING_BOXES: FloatingBox[] = [];
+
+// Dialogue Graph with portraits and choices for all 4 missions & story lore
 export const DIALOGUE_NODES: Record<string, DialogueNode> = {
   amma_greeting: {
     id: 'amma_greeting',
@@ -139,10 +142,12 @@ export const DIALOGUE_NODES: Record<string, DialogueNode> = {
     speakerTitle: 'Farm Matriarch',
     portrait: 'amma_wise',
     text: [
-      "Welcome back, child. I was just watching the dragonflies skim the canal. In my youth, dragonflies meant the monsoon rains would be gentle and steady.",
-      "Now, the skies hold their breath for weeks, only to pour three inches in one night. The soil cannot drink so fast."
+      "Welcome, Hari child! Look closely at the burnished clay jars resting on the veranda.",
+      "Before corporate hybrid seeds took over our valley, our family preserved heirloom seeds adapted to withstand erratic monsoons.",
+      "NASA's SMAP satellite radiometer measures root-zone wetness from 680 km above. Can you help me match our four ancestral seeds with their climate adaptation superpowers?"
     ],
     choices: [
+      { text: "[★ MISSION 1] Match Heirloom Seeds Matrix (NASA SMAP)", action: 'play_amma_match' },
       { text: "What should we sow this season, Amma?", nextDialogueId: 'amma_crop_advice' },
       { text: "How deep is our well water holding up?", nextDialogueId: 'amma_water_worry' },
       { text: "I want to compare our 3 crop rotation options.", action: 'open_compare' },
@@ -155,11 +160,12 @@ export const DIALOGUE_NODES: Record<string, DialogueNode> = {
     speakerTitle: 'Farm Matriarch',
     portrait: 'amma_smile',
     text: [
-      "Our neighbors rush to plant water-hungry hybrid rice because the grain buyers promise ready cash.",
+      "Our neighbors rush to plant water-hungry hybrid rice because grain buyers promise quick cash.",
       "But if you intercrop pearl millet with deep-rooted chickpea, the roots seek moisture four feet down, and the legumes feed nitrogen back into the soil.",
       "Open our rotation almanac and see for yourself how the climate risk shifts."
     ],
     choices: [
+      { text: "[★ MISSION 1] Start Heirloom Matching Challenge", action: 'play_amma_match' },
       { text: "[◆ MINI-GAME] Start Precision Sowing Drill (NASA SMAP)", action: 'play_sowing' },
       { text: "Open 3-Rotation Compare Matrix", action: 'open_compare' },
       { text: "Let me inspect the north field first.", action: 'close' }
@@ -172,12 +178,98 @@ export const DIALOGUE_NODES: Record<string, DialogueNode> = {
     portrait: 'amma_worry',
     text: [
       "In 1990, we struck sweet water at forty feet with a simple bullock pulley.",
-      "Today, the diesel borewell hums at three hundred feet, coughing up sand when the neighboring villages run their pumps simultaneously.",
+      "Today, the diesel borewell hums at three hundred feet, coughing up sand when neighboring villages run their pumps simultaneously.",
       "Go inspect the tubewell pump—the satellite telemetry chips we installed will show you the regional aquifer trend."
     ],
     choices: [
-      { text: "[◆ MINI-GAME] Calibrate Tubewell Valves", action: 'play_tubewell' },
+      { text: "[◆ MINI-GAME] Calibrate Tubewell Valves (NASA GRACE)", action: 'play_tubewell' },
       { text: "I'll go check the tubewell pump.", action: 'close' }
+    ]
+  },
+  agronomist_consult: {
+    id: 'agronomist_consult',
+    speaker: 'Dr. Rao',
+    speakerTitle: 'District Extension Agronomist',
+    portrait: 'agronomist',
+    text: [
+      "Namaskara, Hari! I am Dr. Rao, your district extension agronomist, sitting here under our 200-year-old sacred banyan tree.",
+      "We are drafting our village's 3-Year Regenerative Rotation Charter to halt aquifer depletion. We need your sharp mind to fill in the missing scientific & NASA satellite blanks!",
+      "Complete the charter so we can submit it to the village panchayat for collective water conservation."
+    ],
+    choices: [
+      { text: "[★ MISSION 2] Fill-in-the-Blanks Charter (NASA GRACE)", action: 'play_banyan_blank' },
+      { text: "What do you think of climate-smart millets?", nextDialogueId: 'agronomist_millets' },
+      { text: "Review 3-Strategy Rotation Matrix", action: 'open_compare' },
+      { text: "Thank you, Dr. Rao.", action: 'close' }
+    ]
+  },
+  agronomist_millets: {
+    id: 'agronomist_millets',
+    speaker: 'Dr. Rao',
+    speakerTitle: 'District Extension Agronomist',
+    portrait: 'agronomist',
+    text: [
+      "Millets like Ragi (Finger Millet) and Bajra (Pearl Millet) have silica-reinforced roots that penetrate hardpan compaction layers.",
+      "They survive on 350mm of seasonal rain where rice requires 1200mm! Plus, local millet processing mills are offering premium buyback contracts.",
+      "I give our 3-crop regenerative rotation my official seal of approval!"
+    ],
+    choices: [
+      { text: "[★ MISSION 2] Fill-in-the-Blanks Blueprint", action: 'play_banyan_blank' },
+      { text: "Open Strategy Matrix to see numbers", action: 'open_compare' },
+      { text: "Good to know!", action: 'close' }
+    ]
+  },
+  weather_station_inspect: {
+    id: 'weather_station_inspect',
+    speaker: 'Village Weather Post',
+    speakerTitle: 'Satellite Radio Relay Terminal',
+    portrait: 'satellite',
+    nasaChip: 'GPM_RAIN',
+    text: [
+      "[ PRIORITY INCOMING SATELLITE TRANSMISSION ]",
+      "The radio transceiver is pulsing red! An urgent transatlantic distress signal is being routed over NASA's GPM (Global Precipitation Measurement) satellite network.",
+      "Farmer Sarah from Story County, Iowa (USA) is calling. A 92 mm/hr cloudburst convective storm is bearing down on 350 acres of bare tilled topsoil!"
+    ],
+    choices: [
+      { text: "[★ MISSION 3] Answer Satellite Call from America (NASA GPM)", action: 'play_america_phone' },
+      { text: "[◆ MINI-GAME] Deploy Sluice Runoff Shield (NASA GPM)", action: 'play_sluice' },
+      { text: "Open Full NASA Data Glossary", action: 'open_nasa' },
+      { text: "Step away from terminal.", action: 'close' }
+    ]
+  },
+  seed_shed_inspect: {
+    id: 'seed_shed_inspect',
+    speaker: 'Global Agro-Ecology Kiosk',
+    speakerTitle: 'Solar-Powered Village Screen',
+    portrait: 'satellite',
+    nasaChip: 'MODIS_HEAT',
+    text: [
+      "[ LIVE SATELLITE FIELD BROADCAST ]",
+      "The solar community terminal is tuned to NASA Earth Observatory's Global Farmer Exchange.",
+      "A live field video documentary from Machakos County, Kenya is playing: Farmer Amina demonstrates how reviving ancient Zaï pit compost bio-shields saved her village from a 46.4°C scorching heat dome!"
+    ],
+    choices: [
+      { text: "[★ MISSION 4] Watch Kenya Video & Build Zaï Pit Bio-Shield", action: 'play_kenya_video' },
+      { text: "Review Heirloom Seed Clay Urns", nextDialogueId: 'seed_urns_detail' },
+      { text: "Step away from screen.", action: 'close' }
+    ]
+  },
+  seed_urns_detail: {
+    id: 'seed_urns_detail',
+    speaker: 'Seed Vault',
+    speakerTitle: 'Ancestral Clay Urns',
+    portrait: 'grandchild',
+    text: [
+      "Inside the cool dark shed stand rows of burnished clay urns sealed with beeswax and neem leaves.",
+      "Urn 1: Heirloom Basmati Rice (traditional, high water need).",
+      "Urn 2: Drought-hardy Finger Millet (deep roots, low water).",
+      "Urn 3: Nitrogen-fixing Desi Chickpea.",
+      "Urn 4: Crimson Clover cover seeds."
+    ],
+    choices: [
+      { text: "[★ MISSION 1] Match Seeds with Amma", action: 'play_amma_match' },
+      { text: "Review 3-Strategy Rotation Plans", action: 'open_compare' },
+      { text: "Close seed chest.", action: 'close' }
     ]
   },
   tubewell_inspect: {
@@ -189,31 +281,13 @@ export const DIALOGUE_NODES: Record<string, DialogueNode> = {
     text: [
       "[ NASA GRACE / GRACE-FO TELEMETRY ]",
       "Regional Aquifer Drawdown: −3.2 cm/yr equivalent water thickness anomaly.",
-      "Current Tubewell Head Pressure: Marginal (42% capacity). Excessive rice flooding risks pump burnout during dry spells."
+      "Current Tubewell Head Pressure: Marginal (42% capacity). Excessive flooded rice pumping risks borewell burnout during dry spells."
     ],
     choices: [
       { text: "[◆ MINI-GAME] Balance Tubewell Valves (NASA GRACE)", action: 'play_tubewell' },
       { text: "Review NASA Groundwater Citations", action: 'open_nasa' },
       { text: "Compare Water-Smart Rotations", action: 'open_compare' },
       { text: "Step away from pump.", action: 'close' }
-    ]
-  },
-  weather_station_inspect: {
-    id: 'weather_station_inspect',
-    speaker: 'Village Weather Post',
-    speakerTitle: 'NASA POWER Meteorological Station',
-    portrait: 'satellite',
-    nasaChip: 'POWER_RAIN',
-    text: [
-      "[ NASA POWER MERRA-2 ASSIMILATION ]",
-      "Weekly Solar Radiation (ALLSKY_SFC_SW_DWN): 21.4 MJ/m²/day.",
-      "Surface Evaporation Rate (EVLAND): 4.8 mm/day.",
-      "Consecutive Dry Spell Days: 18 days above historical normal. High evaporative soil moisture loss detected."
-    ],
-    choices: [
-      { text: "[◆ MINI-GAME] Deploy Sluice Runoff Shield (NASA GPM)", action: 'play_sluice' },
-      { text: "Open Full NASA Data Glossary", action: 'open_nasa' },
-      { text: "Check field moisture impact", action: 'close' }
     ]
   },
   crop_north_inspect: {
@@ -230,7 +304,6 @@ export const DIALOGUE_NODES: Record<string, DialogueNode> = {
     choices: [
       { text: "[◆ MINI-GAME] Start Precision Sowing Drill (NASA SMAP)", action: 'play_sowing' },
       { text: "Open 3-Rotation Compare Matrix", action: 'open_compare' },
-      { text: "Advance Season & Sow Seeds", action: 'advance_season' },
       { text: "Back to walking.", action: 'close' }
     ]
   },
@@ -248,54 +321,6 @@ export const DIALOGUE_NODES: Record<string, DialogueNode> = {
       { text: "[◆ MINI-GAME] Deploy Heatwave Bio-Shield (NASA MERRA-2)", action: 'play_heatwave' },
       { text: "Open 3-Rotation Strategy Matrix", action: 'open_compare' },
       { text: "Leave soil undisturbed.", action: 'close' }
-    ]
-  },
-  agronomist_consult: {
-    id: 'agronomist_consult',
-    speaker: 'Dr. Rao',
-    speakerTitle: 'District Extension Agronomist',
-    portrait: 'agronomist',
-    text: [
-      "Namaskara! I am here under the Banyan tree reviewing the district crop patterns.",
-      "Satellites provide marvelous regional observations, but remember our golden rule: 'Supports farmers, doesn't replace them!'",
-      "Before adopting a brand new variety across your whole acreage, test it in a quarter-acre test strip and consult our local extension office for pest forecasts."
-    ],
-    choices: [
-      { text: "What do you think of climate-smart millets?", nextDialogueId: 'agronomist_millets' },
-      { text: "Review crop rotation options", action: 'open_compare' },
-      { text: "Thank you, Dr. Rao.", action: 'close' }
-    ]
-  },
-  agronomist_millets: {
-    id: 'agronomist_millets',
-    speaker: 'Dr. Rao',
-    speakerTitle: 'District Extension Agronomist',
-    portrait: 'agronomist',
-    text: [
-      "Millets like Ragi (Finger Millet) and Bajra (Pearl Millet) have silica-reinforced roots that penetrate compaction layers.",
-      "They survive on 350mm of seasonal rain where rice requires 1200mm! Plus, local millet mills are offering premium buyback contracts.",
-      "I give that rotation my official stamp of approval!"
-    ],
-    choices: [
-      { text: "Open Strategy Matrix to see numbers", action: 'open_compare' },
-      { text: "Good to know!", action: 'close' }
-    ]
-  },
-  seed_shed_inspect: {
-    id: 'seed_shed_inspect',
-    speaker: 'Seed Vault',
-    speakerTitle: 'Amma’s Clay Urns',
-    portrait: 'grandchild',
-    text: [
-      "Inside the cool dark shed stand rows of burnished clay urns sealed with beeswax and neem leaves.",
-      "Urn 1: Heirloom Basmati Rice (traditional, high water need).",
-      "Urn 2: Drought-hardy Finger Millet (deep roots, low water).",
-      "Urn 3: Nitrogen-fixing Desi Chickpea.",
-      "Urn 4: Crimson Clover cover seeds."
-    ],
-    choices: [
-      { text: "Review 3-Strategy Rotation Plans", action: 'open_compare' },
-      { text: "Close seed chest.", action: 'close' }
     ]
   }
 };

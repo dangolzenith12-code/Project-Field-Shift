@@ -116,6 +116,51 @@ class RetroSoundFX {
       osc.stop(this.ctx.currentTime + 0.25);
     } catch {}
   }
+
+  // Erosion / Incorrect Choice Buzzer
+  playErosion() {
+    if (!this.enabled) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(180, this.ctx.currentTime);
+      osc.frequency.setValueAtTime(130, this.ctx.currentTime + 0.08);
+
+      gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.22);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.22);
+    } catch {}
+  }
+
+  // Sci-Fi Telemetry Chime (For Floating Boxes)
+  playTelemetry() {
+    if (!this.enabled) return;
+    this.initCtx();
+    if (!this.ctx) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(580, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1160, this.ctx.currentTime + 0.18);
+      gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.18);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.18);
+    } catch {}
+  }
 }
 
 export const sfx = new RetroSoundFX();

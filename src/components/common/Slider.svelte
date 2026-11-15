@@ -71,7 +71,7 @@
   .vintage-slider-container {
     display: flex;
     flex-direction: column;
-    gap: var(--space-1);
+    gap: 4px;
     width: 100%;
   }
 
@@ -87,7 +87,7 @@
     align-items: center;
     gap: 6px;
     font-weight: 600;
-    color: var(--ink);
+    color: #FFFFFF;
   }
 
   .slider-label .icon {
@@ -95,14 +95,14 @@
   }
 
   .slider-badge {
-    background-color: var(--paper);
-    border: 2px solid var(--ink);
-    border-radius: var(--radius-sm);
+    background-color: #0E2215;
+    border: 1.5px solid #00FF66;
+    border-radius: 4px;
     padding: 2px 8px;
     font-size: 0.82rem;
     font-weight: 700;
-    color: var(--ink);
-    box-shadow: 0 2px 0 var(--ink);
+    color: #00FF66;
+    box-shadow: 0 0 8px rgba(0, 255, 102, 0.25);
   }
 
   .slider-track-wrap {
@@ -116,8 +116,8 @@
     position: absolute;
     left: 0;
     height: 10px;
-    background-color: var(--paddy);
-    border: 2.5px solid var(--ink);
+    background-color: #00FF66;
+    border: 1px solid #000;
     border-right: none;
     border-radius: 6px 0 0 6px;
     pointer-events: none;
@@ -129,8 +129,8 @@
     appearance: none;
     width: 100%;
     height: 10px;
-    background: color-mix(in srgb, var(--soil) 25%, var(--paper));
-    border: 2.5px solid var(--ink);
+    background: #14281B;
+    border: 1.5px solid #285434;
     border-radius: 6px;
     outline: none;
     margin: 0;
@@ -139,26 +139,18 @@
     cursor: pointer;
   }
 
-  /* Custom round turmeric knob with grip texture */
+  /* Custom round turmeric knob */
   .vintage-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
-    background-color: var(--turmeric);
-    border: 3px solid var(--ink);
-    box-shadow: 0 3px 0 var(--ink);
+    background-color: #FFB703;
+    border: 2px solid #000000;
+    box-shadow: 0 0 10px rgba(255, 183, 3, 0.5);
     cursor: grab;
-    transition: transform var(--fast) var(--spring);
-    /* Grip stripes pattern */
-    background-image: repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 3px,
-      var(--ink) 3px,
-      var(--ink) 5px
-    );
+    transition: transform 0.15s ease;
   }
 
   .vintage-slider::-webkit-slider-thumb:hover {
@@ -168,16 +160,15 @@
   .vintage-slider::-webkit-slider-thumb:active {
     cursor: grabbing;
     transform: scale(1.05);
-    box-shadow: 0 1px 0 var(--ink);
   }
 
   .vintage-slider::-moz-range-thumb {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
-    background-color: var(--turmeric);
-    border: 3px solid var(--ink);
-    box-shadow: 0 3px 0 var(--ink);
+    background-color: #FFB703;
+    border: 2px solid #000000;
+    box-shadow: 0 0 10px rgba(255, 183, 3, 0.5);
     cursor: grab;
   }
 
@@ -186,7 +177,7 @@
     justify-content: space-between;
     font-family: var(--font-data);
     font-size: 0.7rem;
-    color: color-mix(in srgb, var(--ink) 70%, transparent);
+    color: #7D9F88;
     padding: 0 2px;
   }
 </style>

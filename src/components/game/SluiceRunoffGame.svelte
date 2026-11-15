@@ -66,26 +66,26 @@
         stormIntensity = Math.max(25, stormIntensity - 8);
       }
 
-      // Erosion calculation based on gates and rye
-      let erosionSpeed = (stormIntensity / 25);
-      if (upperSluiceOpen) erosionSpeed -= 1.2;
-      if (midCulvertOpen) erosionSpeed -= 1.0;
-      if (ryeUpperActive) erosionSpeed *= 0.55;
-      if (ryeMidActive) erosionSpeed *= 0.65;
+      // Erosion calculation based on gates and rye (gentler, accessible curve)
+      let erosionSpeed = (stormIntensity / 45);
+      if (upperSluiceOpen) erosionSpeed -= 1.4;
+      if (midCulvertOpen) erosionSpeed -= 1.2;
+      if (ryeUpperActive) erosionSpeed *= 0.45;
+      if (ryeMidActive) erosionSpeed *= 0.55;
 
-      erosionPercent = Math.min(100, Math.max(0, erosionPercent + Math.max(0.2, erosionSpeed)));
+      erosionPercent = Math.min(100, Math.max(0, erosionPercent + Math.max(0.1, erosionSpeed)));
 
       // Water clarity calculation
       if (upperSluiceOpen && midCulvertOpen && (ryeUpperActive || ryeMidActive)) {
-        waterClarity = Math.min(95, waterClarity + 1.5);
+        waterClarity = Math.min(95, waterClarity + 2.0);
       } else if (!upperSluiceOpen && !midCulvertOpen) {
-        waterClarity = Math.max(15, waterClarity - 4.5);
+        waterClarity = Math.max(15, waterClarity - 3.0);
       } else {
-        waterClarity = Math.max(30, waterClarity - 1.5);
+        waterClarity = Math.max(30, waterClarity - 1.0);
       }
 
       // Audio blip on high erosion
-      if (erosionPercent > 70 && timerSeconds % 2 === 0) {
+      if (erosionPercent > 75 && timerSeconds % 2 === 0) {
         sfx.playAlert();
       }
 
@@ -94,9 +94,9 @@
         endGame(false, "Topsoil washed away! Silt overwhelmed the creek basin!");
       }
 
-      // Check victory on timer
+      // Check victory on timer (forgiving threshold)
       if (timerSeconds <= 0) {
-        if (erosionPercent < 75 && waterClarity > 40) {
+        if (erosionPercent < 85 && waterClarity > 25) {
           endGame(true, "Cloudburst passed! Winter rye and sluices saved Iowa's rich topsoil!");
         } else {
           endGame(false, "Storm passed, but excessive erosion stripped the fertile slope.");

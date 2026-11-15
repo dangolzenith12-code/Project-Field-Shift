@@ -33,10 +33,10 @@
 
   let alertMessage = $state<string | null>("Turn on valves and pump water to balance moisture without draining the aquifer!");
 
-  // Targets
-  const plot1Target = { min: 55, max: 80, name: 'Wheat' };
-  const plot2Target = { min: 30, max: 50, name: 'Finger Millet' };
-  const plot3Target = { min: 35, max: 55, name: 'Chickpea' };
+  // Targets (widened for a smooth, accessible challenge)
+  const plot1Target = { min: 48, max: 82, name: 'Wheat' };
+  const plot2Target = { min: 25, max: 55, name: 'Finger Millet' };
+  const plot3Target = { min: 28, max: 60, name: 'Chickpea' };
 
   const plot1Ok = $derived(plot1Moisture >= plot1Target.min && plot1Moisture <= plot1Target.max);
   const plot2Ok = $derived(plot2Moisture >= plot2Target.min && plot2Moisture <= plot2Target.max);
@@ -47,12 +47,12 @@
     isRunning = true;
     isGameOver = false;
     didWin = false;
-    timerSeconds = 15;
+    timerSeconds = 20;
     aquiferLevel = 100;
     pumpPressure = 0;
-    plot1Moisture = 45;
-    plot2Moisture = 30;
-    plot3Moisture = 25;
+    plot1Moisture = 55;
+    plot2Moisture = 36;
+    plot3Moisture = 38;
     alertMessage = "Maintain all 3 plots in their green target zones!";
 
     if (gameInterval) clearInterval(gameInterval);
@@ -61,14 +61,14 @@
       if (timerSeconds > 0) {
         timerSeconds--;
 
-        // Natural moisture evaporation
-        plot1Moisture = Math.max(10, plot1Moisture - 2.5);
-        plot2Moisture = Math.max(10, plot2Moisture - 1.5);
-        plot3Moisture = Math.max(10, plot3Moisture - 1.8);
+        // Gentle natural moisture evaporation
+        plot1Moisture = Math.max(10, plot1Moisture - 1.1);
+        plot2Moisture = Math.max(10, plot2Moisture - 0.8);
+        plot3Moisture = Math.max(10, plot3Moisture - 0.9);
 
-        // Natural pressure drop
+        // Gentle pressure drop
         if (!isPumping) {
-          pumpPressure = Math.max(0, pumpPressure - 15);
+          pumpPressure = Math.max(0, pumpPressure - 8);
         }
 
         // Check loss condition

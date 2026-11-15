@@ -13,12 +13,12 @@
   let currentSeedIndex = $state(0);
   let needlePosition = $state(0); // 0 to 100%
   let needleDirection = $state(1); // 1 = moving right, -1 = moving left
-  let needleSpeed = 1.4;
+  let needleSpeed = 0.72; // Slower, accessible and easy to time accurately
   let animFrameId: number;
 
-  // The NASA SMAP Moisture Sweet-Spot (e.g. 40% to 65% depth range = 4cm to 6.5cm depth)
-  const targetZoneStart = 42;
-  const targetZoneEnd = 64;
+  // The NASA SMAP Moisture Sweet-Spot (e.g. 36% to 68% depth range = ~4.3cm to 8.1cm depth)
+  const targetZoneStart = 36;
+  const targetZoneEnd = 68;
 
   let feedbackText = $state<string | null>("Press [SPACE] or click [DROP SEED] when needle is in the GREEN zone!");
   let feedbackType = $state<'normal' | 'perfect' | 'good' | 'miss'>('normal');
@@ -52,7 +52,7 @@
     if (currentPos >= targetZoneStart && currentPos <= targetZoneEnd) {
       // In optimal zone!
       const centerDist = Math.abs(currentPos - (targetZoneStart + targetZoneEnd) / 2);
-      if (centerDist <= 5) {
+      if (centerDist <= 8.5) {
         sfx.playSuccess();
         feedbackText = `★ PERFECT DEPTH! ${depthCm} cm (Optimal SMAP moisture zone)`;
         feedbackType = 'perfect';

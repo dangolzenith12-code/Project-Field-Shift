@@ -1,8 +1,6 @@
 <script lang="ts">
   import type { StrategyOption, FarmerPriorities, ClimateModifiers } from '../../types/game';
   import { STRATEGIES } from '../../data/mockData';
-  import StickerCard from '../common/StickerCard.svelte';
-  import Button from '../common/Button.svelte';
   import Slider from '../common/Slider.svelte';
   import RubberStamp from '../common/RubberStamp.svelte';
   import DataChip from '../common/DataChip.svelte';
@@ -62,45 +60,46 @@
   <!-- Screen Header -->
   <div class="compare-header">
     <div class="header-left">
-      <h2 class="title font-display">Four Seasons Strategy Compare</h2>
+      <h2 class="title font-pixel">Four Seasons Strategy Compare</h2>
       <p class="subtitle font-body">
         Three crop rotation paths for Amma's field. Adjust your farm priorities below to re-rank outcomes.
       </p>
     </div>
     <div class="header-right">
-      <Button variant="secondary" size="sm" onclick={onBack}>← Return to Field</Button>
+      <button type="button" class="return-field-btn font-pixel" onclick={onBack}>
+        ← Return to Field
+      </button>
     </div>
   </div>
 
-  <BlockPrintBorder height={14} />
+  <BlockPrintBorder height={14} color="#00FF66" />
 
-  <!-- 3 Strategy Cards "Dealt" on the table -->
+  <!-- 3 Strategy Cards on the table -->
   <div class="cards-table">
     {#each scoredStrategies as strat, idx (strat.id)}
       {@const isWinner = strat.id === winningId}
-      {@const tilt = idx === 0 ? -1 : idx === 1 ? 0.8 : -0.5}
 
-      <div class="strategy-column {isWinner ? 'winner-card-wrap' : ''}">
+      <div class="strategy-column" class:winner-card-wrap={isWinner}>
         <!-- Winning Banner Ribbon -->
         {#if isWinner}
-          <div class="winner-ribbon font-display" aria-live="polite">
+          <div class="winner-ribbon font-pixel" aria-live="polite">
             🏆 TOP RECOMMENDED MATCH ({strat.currentScore} PTS)
           </div>
         {/if}
 
-        <StickerCard tilt={tilt} class="strategy-card">
+        <div class="strategy-card" class:winner-card={isWinner}>
           <!-- Card Header -->
           <div class="card-top">
-            <span class="rotation-type-tag font-data">PATH 0{idx + 1}</span>
-            <span class="score-badge font-data">Score: {strat.currentScore}</span>
+            <span class="rotation-type-tag font-pixel">PATH 0{idx + 1}</span>
+            <span class="score-badge font-pixel">Score: {strat.currentScore}</span>
           </div>
 
-          <h3 class="strategy-title font-display">{strat.title}</h3>
+          <h3 class="strategy-title font-pixel">{strat.title}</h3>
           <div class="strategy-sub font-body">{strat.subtitle}</div>
 
           <!-- Crop Sequence Pills -->
           <div class="crop-rotation-flow">
-            <div class="flow-label font-data">Rotation Cycle:</div>
+            <div class="flow-label font-pixel">Rotation Cycle:</div>
             <div class="pills-row">
               {#each strat.cropRotation as crop}
                 <span class="crop-pill font-body">{crop}</span>
@@ -122,7 +121,7 @@
 
           <!-- Key NASA Satellite Evidence Chips -->
           <div class="evidence-section">
-            <div class="section-label font-data">NASA Satellite Evidence:</div>
+            <div class="section-label font-pixel">🛰️ NASA SATELLITE EVIDENCE:</div>
             <div class="chips-list">
               {#each strat.nasaEvidenceChips as chip}
                 <DataChip note={chip} />
@@ -133,7 +132,7 @@
           <!-- Benefits & Risks -->
           <div class="bullet-grid">
             <div class="benefit-box">
-              <span class="box-heading font-data">✓ Key Strengths</span>
+              <span class="box-heading font-pixel">✓ Key Strengths</span>
               <ul>
                 {#each strat.benefits as ben}
                   <li class="font-body">{ben}</li>
@@ -142,7 +141,7 @@
             </div>
 
             <div class="risk-box">
-              <span class="box-heading font-data">⚠️ Vulnerabilities & Gaps</span>
+              <span class="box-heading font-pixel">⚠️ Vulnerabilities & Gaps</span>
               <ul>
                 {#each strat.risks as risk}
                   <li class="font-body">{risk}</li>
@@ -163,25 +162,26 @@
 
           <!-- Action Button -->
           <div class="card-footer-action">
-            <Button 
-              variant={isWinner ? 'paddy' : 'primary'} 
-              size="md" 
+            <button 
+              type="button"
+              class="adopt-btn font-pixel"
+              class:winner-btn={isWinner}
               onclick={() => onSelectStrategy?.(strat)}
             >
-              Adopt This Plan →
-            </Button>
+              {isWinner ? '🌟 ADOPT RECOMMENDED PLAN →' : 'ADOPT THIS PLAN →'}
+            </button>
           </div>
-        </StickerCard>
+        </div>
       </div>
     {/each}
   </div>
 
-  <BlockPrintBorder height={14} />
+  <BlockPrintBorder height={14} color="#00FF66" />
 
   <!-- Control Panel: Farmer Priorities & Climate Sliders -->
-  <div class="control-panel-card sticker-card no-tape">
+  <div class="control-panel-card">
     <div class="panel-header">
-      <h3 class="panel-title font-display">🎛️ Live Sensitivity Control Panel</h3>
+      <h3 class="panel-title font-pixel">🎛️ LIVE SENSITIVITY CONTROL PANEL</h3>
       <p class="panel-desc font-body">
         Drag sliders to see how NASA climate projections and your family's personal priorities re-weight the recommendations.
       </p>
@@ -190,7 +190,7 @@
     <div class="sliders-grid">
       <!-- Farmer Priorities Column -->
       <div class="slider-group">
-        <h4 class="group-title font-display">Farmer Priorities (Live Re-Weighting)</h4>
+        <h4 class="group-title font-pixel">Farmer Priorities (Live Re-Weighting)</h4>
         <Slider 
           label="Water Conservation Weight" 
           icon="💧" 
@@ -227,7 +227,7 @@
 
       <!-- Climate Stress Modifiers Column -->
       <div class="slider-group">
-        <h4 class="group-title font-display">NASA Climate Scenario Stress-Test</h4>
+        <h4 class="group-title font-pixel">NASA Climate Scenario Stress-Test</h4>
         <Slider 
           label="Global Temperature Shift" 
           icon="🌡️" 
@@ -249,9 +249,9 @@
           formatValue={(v) => `${v > 0 ? '+' : ''}${v}%`}
         />
 
-        <div class="panel-info-box">
+        <div class="panel-info-box font-data">
           <span class="info-icon">ℹ️</span>
-          <span class="font-body">
+          <span>
             NASA POWER & MERRA-2 models indicate that exceeding +1.5°C doubles heat-stress during summer pod fill. Notice how traditional rotations drop in score under high heat!
           </span>
         </div>
@@ -264,10 +264,11 @@
   .compare-container {
     display: flex;
     flex-direction: column;
-    gap: var(--space-3);
-    padding: var(--space-4) var(--space-2);
+    gap: 16px;
+    padding: 24px 16px;
     max-width: 1280px;
     margin: 0 auto;
+    color: #F8F9FA;
   }
 
   .compare-header {
@@ -275,28 +276,49 @@
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    gap: var(--space-3);
+    gap: 16px;
   }
 
   .title {
-    font-size: 1.85rem;
-    color: var(--ink);
-    transform: rotate(-1deg);
+    font-size: 1.55rem;
+    color: #FFD166;
+    text-shadow: 0 0 12px rgba(255, 209, 102, 0.4);
+    margin-bottom: 6px;
   }
 
   .subtitle {
-    font-size: 1rem;
-    color: var(--ink);
+    font-size: 14px;
+    color: #A0C8AA;
     max-width: 650px;
+    line-height: 1.5;
+  }
+
+  .return-field-btn {
+    background: #0E1F14;
+    border: 2px solid #00FF66;
+    color: #00FF66;
+    font-size: 11px;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0, 255, 102, 0.25);
+    transition: all 0.15s ease;
+  }
+
+  .return-field-btn:hover {
+    background: #00FF66;
+    color: #000000;
+    transform: translateY(-2px);
+    box-shadow: 0 0 16px rgba(0, 255, 102, 0.5);
   }
 
   /* 3 Cards Table */
   .cards-table {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: var(--space-4);
-    align-items: start;
-    margin: var(--space-2) 0;
+    gap: 20px;
+    align-items: stretch;
+    margin: 8px 0;
   }
 
   .strategy-column {
@@ -306,22 +328,42 @@
   }
 
   .winner-ribbon {
-    background-color: var(--paddy);
-    color: var(--paper);
-    border: var(--outline-thin);
-    border-radius: var(--radius-sm);
-    padding: 6px 14px;
-    font-size: 0.88rem;
+    background-color: #00FF66;
+    color: #051A0C;
+    font-size: 11px;
+    font-weight: bold;
+    border: 2px solid #000000;
+    border-radius: 4px;
+    padding: 8px 14px;
     text-align: center;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 0 16px rgba(0, 255, 102, 0.5);
     margin-bottom: -10px;
     z-index: 5;
-    animation: ribbon-slide 300ms var(--spring) forwards;
+    animation: ribbonSlide 300ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   }
 
-  @keyframes ribbon-slide {
+  @keyframes ribbonSlide {
     from { transform: translateY(-10px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
+  }
+
+  .strategy-card {
+    background: linear-gradient(180deg, #0E1D13 0%, #07100B 100%);
+    border: 2px solid #285434;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    height: 100%;
+    color: #FFFFFF;
+    transition: all 0.2s ease;
+  }
+
+  .strategy-card.winner-card {
+    border: 3px solid #00FF66;
+    box-shadow: 0 0 24px rgba(0, 255, 102, 0.35), 0 8px 32px rgba(0, 0, 0, 0.85);
   }
 
   .card-top {
@@ -331,72 +373,77 @@
   }
 
   .rotation-type-tag {
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: var(--ink);
-    background-color: color-mix(in srgb, var(--turmeric) 35%, var(--paper));
-    border: 1.5px solid var(--ink);
+    font-size: 10px;
+    color: #A0E8B0;
+    background-color: #142E1C;
+    border: 1.5px solid #3FA34D;
     border-radius: 4px;
-    padding: 2px 6px;
+    padding: 3px 8px;
   }
 
   .score-badge {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--paper);
-    background-color: var(--ink);
-    border-radius: 6px;
-    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: bold;
+    color: #000000;
+    background-color: #FFB703;
+    border-radius: 4px;
+    padding: 3px 10px;
+    box-shadow: 0 0 8px rgba(255, 183, 3, 0.4);
   }
 
   .strategy-title {
-    font-size: 1.35rem;
-    margin-top: 4px;
-    line-height: 1.2;
+    font-size: 14px;
+    color: #FFFFFF;
+    line-height: 1.4;
+    margin-top: 2px;
   }
 
   .strategy-sub {
-    font-size: 0.9rem;
-    color: color-mix(in srgb, var(--ink) 80%, transparent);
-    font-weight: 500;
+    font-size: 13px;
+    color: #84CCA0;
+    line-height: 1.4;
   }
 
   .crop-rotation-flow {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
   }
 
   .flow-label {
-    font-size: 0.7rem;
-    font-weight: bold;
-    color: var(--ink);
+    font-size: 10px;
+    color: #FFD166;
   }
 
   .pills-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: 6px;
   }
 
   .crop-pill {
-    font-size: 0.78rem;
-    background-color: color-mix(in srgb, var(--paper) 80%, var(--paddy));
-    border: 1.5px solid var(--ink);
-    border-radius: var(--radius-pill);
-    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #FFFFFF;
+    background-color: #173321;
+    border: 1.5px solid #00FF66;
+    border-radius: 12px;
+    padding: 3px 10px;
   }
 
   .explanation-box {
-    background-color: color-mix(in srgb, var(--paper) 90%, var(--turmeric));
-    border-left: 3px solid var(--turmeric);
-    padding: 6px 10px;
-    border-radius: 0 6px 6px 0;
+    background-color: #15261A;
+    border: 1px solid #285434;
+    border-left: 4px solid #FFB703;
+    padding: 10px 12px;
+    border-radius: 4px;
   }
 
   .why-text {
-    font-size: 0.85rem;
-    line-height: 1.35;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #FFE699;
+    margin: 0;
   }
 
   .evidence-section {
@@ -406,8 +453,8 @@
   }
 
   .section-label {
-    font-size: 0.72rem;
-    font-weight: bold;
+    font-size: 10px;
+    color: #00E5FF;
   }
 
   .chips-list {
@@ -419,47 +466,77 @@
   .bullet-grid {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    font-size: 0.8rem;
+    gap: 10px;
   }
 
-  .benefit-box, .risk-box {
-    background-color: var(--paper);
-    border: 1.5px solid var(--ink);
-    border-radius: 8px;
-    padding: 8px;
+  .benefit-box {
+    background-color: #0B1C12;
+    border: 1.5px solid #00FF66;
+    border-radius: 6px;
+    padding: 10px 12px;
   }
 
-  .box-heading {
+  .benefit-box .box-heading {
     display: block;
-    font-size: 0.72rem;
-    font-weight: bold;
-    margin-bottom: 4px;
-    text-transform: uppercase;
+    font-size: 10px;
+    color: #00FF66;
+    margin-bottom: 6px;
   }
 
-  .benefit-box ul, .risk-box ul {
+  .benefit-box ul {
     list-style-type: none;
     display: flex;
     flex-direction: column;
     gap: 4px;
   }
 
+  .benefit-box li {
+    font-size: 13px;
+    color: #FFFFFF;
+    line-height: 1.4;
+  }
+
   .benefit-box li::before {
-    content: "• ";
-    color: var(--paddy);
+    content: "✓ ";
+    color: #00FF66;
     font-weight: bold;
   }
 
+  .risk-box {
+    background-color: #200E0E;
+    border: 1.5px solid #E63946;
+    border-radius: 6px;
+    padding: 10px 12px;
+  }
+
+  .risk-box .box-heading {
+    display: block;
+    font-size: 10px;
+    color: #FF6B6B;
+    margin-bottom: 6px;
+  }
+
+  .risk-box ul {
+    list-style-type: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .risk-box li {
+    font-size: 13px;
+    color: #FEE2E2;
+    line-height: 1.4;
+  }
+
   .risk-box li::before {
-    content: "• ";
-    color: var(--chili);
-    font-weight: bold;
+    content: "⚠️ ";
+    color: #FF6B6B;
   }
 
   .data-gap {
     font-style: italic;
-    color: color-mix(in srgb, var(--ink) 75%, transparent);
+    color: #FFD166 !important;
   }
 
   .stamp-container {
@@ -470,64 +547,101 @@
 
   .card-footer-action {
     display: flex;
-    justify-content: stretch;
     margin-top: auto;
+    padding-top: 8px;
   }
 
-  .card-footer-action :global(.vintage-btn) {
+  .adopt-btn {
     width: 100%;
+    padding: 12px 16px;
+    font-size: 11px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: 2px solid #52B788;
+    background: #14281B;
+    color: #A0E8B0;
+  }
+
+  .adopt-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  }
+
+  .adopt-btn.winner-btn {
+    background: #00FF66;
+    color: #000000;
+    font-weight: bold;
+    border-color: #00FF66;
+    box-shadow: 0 0 16px rgba(0, 255, 102, 0.4);
+  }
+
+  .adopt-btn.winner-btn:hover {
+    background: #25FF7B;
+    box-shadow: 0 0 24px rgba(0, 255, 102, 0.7);
   }
 
   /* Control Panel */
   .control-panel-card {
-    background-color: var(--paper);
+    background: #0D1C12;
+    border: 2px solid #00FF66;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 255, 102, 0.2);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
   }
 
   .panel-header {
-    margin-bottom: var(--space-3);
+    margin-bottom: 4px;
   }
 
   .panel-title {
-    font-size: 1.3rem;
+    font-size: 14px;
+    color: #FFD166;
+    margin-bottom: 4px;
   }
 
   .panel-desc {
-    font-size: 0.92rem;
-    color: var(--ink);
+    font-size: 13px;
+    color: #A0C8AA;
+    line-height: 1.5;
   }
 
   .sliders-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--space-5);
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 28px;
   }
 
   .slider-group {
     display: flex;
     flex-direction: column;
-    gap: var(--space-3);
+    gap: 14px;
   }
 
   .group-title {
-    font-size: 1rem;
-    color: var(--ink);
-    border-bottom: 2px solid var(--ink);
-    padding-bottom: 4px;
+    font-size: 11px;
+    color: #FFFFFF;
+    border-bottom: 2px solid #285434;
+    padding-bottom: 6px;
   }
 
   .panel-info-box {
     display: flex;
     align-items: flex-start;
-    gap: 8px;
-    background-color: color-mix(in srgb, var(--monsoon) 12%, var(--paper));
-    border: 2px solid var(--ink);
-    border-radius: var(--radius-sm);
-    padding: 10px;
-    font-size: 0.82rem;
-    line-height: 1.35;
+    gap: 10px;
+    background-color: #0A1C2A;
+    border: 1.5px solid #00E5FF;
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 12px;
+    line-height: 1.45;
+    color: #BAE6FD;
   }
 
   .info-icon {
-    font-size: 1.1rem;
+    font-size: 18px;
   }
 </style>

@@ -34,28 +34,28 @@
 
   <svg class="ribbon-svg" viewBox="0 0 {svgWidth} {svgHeight}">
     <!-- Background track -->
-    <rect x="10" y="21" width="{svgWidth - 20}" height="4" rx="2" fill="color-mix(in srgb, var(--ink) 18%, transparent)" />
+    <rect x="10" y="21" width="{svgWidth - 20}" height="4" rx="2" fill="#1C3825" />
 
     <!-- Range Ribbon (p10 to p90) with subtle wobbly path -->
     <path 
       d={topWobble} 
-      fill="color-mix(in srgb, var(--paddy) 35%, var(--paper))" 
-      stroke="var(--ink)" 
-      stroke-width="2" 
+      fill="rgba(0, 255, 102, 0.28)" 
+      stroke="#00FF66" 
+      stroke-width="1.8" 
       stroke-linejoin="round"
     />
 
     <!-- Tick mark for p10 -->
-    <line x1={x10} y1="8" x2={x10} y2="38" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" />
-    <text x={x10} y="43" font-family="Space Mono" font-size="8" fill="var(--ink)" text-anchor="middle">p10:{p10}%</text>
+    <line x1={x10} y1="8" x2={x10} y2="38" stroke="#A0C8B0" stroke-width="1.5" stroke-linecap="round" />
+    <text x={x10} y="43" font-family="Space Mono" font-size="8" fill="#FFFFFF" text-anchor="middle">p10:{p10}%</text>
 
     <!-- Tick mark for p90 -->
-    <line x1={x90} y1="8" x2={x90} y2="38" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" />
-    <text x={x90} y="43" font-family="Space Mono" font-size="8" fill="var(--ink)" text-anchor="middle">p90:{p90}%</text>
+    <line x1={x90} y1="8" x2={x90} y2="38" stroke="#A0C8B0" stroke-width="1.5" stroke-linecap="round" />
+    <text x={x90} y="43" font-family="Space Mono" font-size="8" fill="#FFFFFF" text-anchor="middle">p90:{p90}%</text>
 
     <!-- Thick Ink Line for Median -->
-    <line x1={xMed} y1="6" x2={xMed} y2="38" stroke="var(--ink)" stroke-width="4.5" stroke-linecap="round" />
-    <circle cx={xMed} cy="22" r="5.5" fill="var(--turmeric)" stroke="var(--ink)" stroke-width="2" />
+    <line x1={xMed} y1="6" x2={xMed} y2="38" stroke="#FFD166" stroke-width="3.5" stroke-linecap="round" />
+    <circle cx={xMed} cy="22" r="5" fill="#FFB703" stroke="#000000" stroke-width="1.5" />
   </svg>
 
   <div class="caption-note font-data">
@@ -68,9 +68,9 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
-    background-color: color-mix(in srgb, var(--paper) 90%, var(--paddy));
-    border: 2px solid var(--ink);
-    border-radius: var(--radius-sm);
+    background-color: #0D1C12;
+    border: 1.5px solid #285434;
+    border-radius: 6px;
     padding: 8px 12px;
   }
 
@@ -83,28 +83,27 @@
   .ribbon-title {
     font-size: 0.78rem;
     font-weight: 600;
-    color: var(--ink);
+    color: #A0E8B0;
   }
 
   .median-pill {
     font-size: 0.75rem;
     font-weight: 700;
-    background-color: var(--paddy);
-    color: var(--paper);
-    padding: 1px 6px;
-    border: 1.5px solid var(--ink);
+    background-color: #00FF66;
+    color: #000000;
+    padding: 2px 8px;
     border-radius: 4px;
   }
 
   .ribbon-svg {
     width: 100%;
-    height: auto;
+    height: 48px;
     overflow: visible;
   }
 
   .caption-note {
     font-size: 0.65rem;
-    color: color-mix(in srgb, var(--ink) 70%, transparent);
-    text-align: center;
+    color: #7A9E85;
+    margin-top: 2px;
   }
 </style>
