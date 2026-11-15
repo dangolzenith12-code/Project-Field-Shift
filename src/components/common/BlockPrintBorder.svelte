@@ -3,7 +3,7 @@
     orientation?: 'horizontal' | 'vertical';
     height?: number;
     color?: string;
-    variant?: 'default' | 'phulkari' | 'tanjore' | 'midwest' | 'sahel';
+    variant?: 'default' | 'phulkari' | 'tanjore' | 'kasuti' | 'midwest' | 'sahel';
   }
 
   let { 
@@ -51,6 +51,17 @@
           <circle cx="36" cy="18" r="1.8" fill="#DF9B1A" />
           <!-- Fine temple pillar lines -->
           <line x1="18" y1="12" x2="18" y2="19" stroke="var(--pattern-color)" stroke-width="1.2" />
+        </pattern>
+      {:else if variant === 'kasuti'}
+        <!-- Kasuti Folk Embroidery: Stepped Gopura, Ratha Chevron & Cross Stitches (Karnataka) -->
+        <pattern id={patternId} width="40" height="20" patternUnits="userSpaceOnUse">
+          <polygon points="20,1 38,10 20,19 2,10" fill="none" stroke="var(--pattern-color)" stroke-width="1.6" />
+          <polygon points="20,4 32,10 20,16 8,10" fill="none" stroke="#A43C25" stroke-width="1.3" opacity="0.85" />
+          <circle cx="20" cy="10" r="2" fill="#DF9B1A" />
+          <line x1="0" y1="1" x2="8" y2="1" stroke="var(--pattern-color)" stroke-width="1.2" />
+          <line x1="32" y1="1" x2="40" y2="1" stroke="var(--pattern-color)" stroke-width="1.2" />
+          <line x1="0" y1="19" x2="8" y2="19" stroke="var(--pattern-color)" stroke-width="1.2" />
+          <line x1="32" y1="19" x2="40" y2="19" stroke="var(--pattern-color)" stroke-width="1.2" />
         </pattern>
       {:else if variant === 'midwest'}
         <!-- Midwestern Prairie & Barn Quilt: Eight-Point Star & Lattice (Iowa) -->

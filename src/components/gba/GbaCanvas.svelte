@@ -14,6 +14,7 @@
     timeOfDay?: TimeOfDay;
     showMiniMap?: boolean;
     toolActionActive?: { tool: EquippedTool; tick: number; x: number; y: number } | null;
+    regionId?: string;
     onInteract: (entity: InteractiveEntity) => void;
     onCycleTool?: () => void;
     onToggleMiniMap?: () => void;
@@ -29,6 +30,7 @@
     timeOfDay = 'noon',
     showMiniMap = true,
     toolActionActive = null,
+    regionId = 'punjab',
     onInteract,
     onCycleTool,
     onToggleMiniMap
@@ -203,9 +205,10 @@
       drawFlowerCluster(ctx, fp.x, fp.y);
     }
 
-    // Winding Sandy Dirt Path
-    ctx.fillStyle = '#D8BA84'; // Sandy beige
-    ctx.strokeStyle = '#B89660'; // Darker sandy edge
+    // Winding Dirt Path (Sandy in Punjab, Terracotta Red Soil in Karnataka)
+    const isKarnataka = regionId === 'karnataka';
+    ctx.fillStyle = isKarnataka ? '#B86B42' : '#D8BA84';
+    ctx.strokeStyle = isKarnataka ? '#8A4222' : '#B89660';
     ctx.lineWidth = 3;
 
     // Main winding path from house to fields
@@ -402,8 +405,11 @@
 
   // 4. Crop Terrace Plots (North & South)
   function drawZeldaCrops(ctx: CanvasRenderingContext2D, tick: number) {
-    // North Plot: Terraced furrow soil
-    ctx.fillStyle = soilMoisture < 35 ? '#B88448' : '#723B18';
+    const isKarnataka = regionId === 'karnataka';
+    // North Plot: Terraced furrow soil (Red Deccan Loam vs Alluvial Loam)
+    ctx.fillStyle = isKarnataka
+      ? (soilMoisture < 35 ? '#B85838' : '#8A321E')
+      : (soilMoisture < 35 ? '#B88448' : '#723B18');
     ctx.strokeStyle = '#2B1B12';
     ctx.lineWidth = 3;
     ctx.beginPath();
@@ -433,8 +439,10 @@
       }
     }
 
-    // South Legumes Plot
-    ctx.fillStyle = '#643212';
+    // South Legumes Plot (Millets in Karnataka, Legumes/Wheat in Punjab)
+    ctx.fillStyle = isKarnataka
+      ? (soilMoisture < 35 ? '#C26344' : '#943822')
+      : '#643212';
     ctx.beginPath();
     ctx.roundRect(180, 520, 260, 150, 10);
     ctx.fill();
