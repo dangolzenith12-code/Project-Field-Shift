@@ -306,34 +306,59 @@
         <!-- Terminal Dialogue Box on bottom center/right (Image 3, 4, 5 style) -->
         {#if hasStartedAdventure}
           <div class="terminal-dialogue-box">
-            <div class="dialogue-header-badge font-pixel">
-              <span>[ HARI ]</span>
-              <span class="sub-role font-retro">Local Farmer</span>
-            </div>
+            <div class="dialogue-box-inner">
+              <!-- Hari Portrait in Dialogue Box -->
+              <div class="dialogue-portrait-frame">
+                <svg viewBox="0 0 40 40" width="54" height="54" shape-rendering="crispEdges">
+                  <rect width="40" height="40" fill="#142414" stroke="#00FF66" stroke-width="2" />
+                  <!-- Straw Hat -->
+                  <rect x="8" y="8" width="24" height="4" fill="#FBBF24" />
+                  <rect x="12" y="3" width="16" height="6" fill="#F59E0B" />
+                  <rect x="12" y="7" width="16" height="2" fill="#92400E" />
+                  <!-- Face -->
+                  <rect x="13" y="12" width="14" height="12" fill="#D29A72" />
+                  <rect x="15" y="16" width="2" height="2" fill="#1C1917" />
+                  <rect x="23" y="16" width="2" height="2" fill="#1C1917" />
+                  <rect x="18" y="20" width="4" height="2" fill="#78350F" />
+                  <!-- Green Shirt & Blue Overalls -->
+                  <rect x="10" y="24" width="20" height="14" fill="#22C55E" />
+                  <rect x="14" y="26" width="12" height="12" fill="#2563EB" />
+                  <rect x="15" y="27" width="2" height="2" fill="#FDE047" />
+                  <rect x="23" y="27" width="2" height="2" fill="#FDE047" />
+                </svg>
+              </div>
 
-            <div class="dialogue-text-body font-retro">
-              {displayedText}
-              {#if isTyping}
-                <span class="cursor">▌</span>
-              {/if}
-            </div>
-
-            <div class="dialogue-footer-strip">
-              {#if introDialogueStep < introLines.length - 1}
-                <button type="button" class="click-to-continue-btn font-pixel" onclick={handleNextIntroLine}>
-                  ▼ CLICK TO CONTINUE ▼
-                </button>
-              {:else}
-                <!-- Consent Question Choices -->
-                <div class="consent-buttons-cluster">
-                  <button type="button" class="pixel-btn" onclick={handleConsentGiven}>
-                    ◆ YES, LET'S FARM TOGETHER!
-                  </button>
-                  <button type="button" class="pixel-btn btn-warning" onclick={handleConsentGiven}>
-                    ◆ I WILL HELP YOU, HARI
-                  </button>
+              <div class="dialogue-text-column">
+                <div class="dialogue-header-badge font-pixel">
+                  <span>[ HARI ]</span>
+                  <span class="sub-role font-retro">Local Farmer</span>
                 </div>
-              {/if}
+
+                <div class="dialogue-text-body font-retro">
+                  {displayedText}
+                  {#if isTyping}
+                    <span class="cursor">▌</span>
+                  {/if}
+                </div>
+
+                <div class="dialogue-footer-strip">
+                  {#if introDialogueStep < introLines.length - 1}
+                    <button type="button" class="click-to-continue-btn font-pixel" onclick={handleNextIntroLine}>
+                      ▼ CLICK TO CONTINUE ▼
+                    </button>
+                  {:else}
+                    <!-- Consent Question Choices -->
+                    <div class="consent-buttons-cluster">
+                      <button type="button" class="pixel-btn" onclick={handleConsentGiven}>
+                        ◆ YES, LET'S FARM TOGETHER!
+                      </button>
+                      <button type="button" class="pixel-btn btn-warning" onclick={handleConsentGiven}>
+                        ◆ I WILL HELP YOU, HARI
+                      </button>
+                    </div>
+                  {/if}
+                </div>
+              </div>
             </div>
           </div>
         {/if}
@@ -341,7 +366,7 @@
     </div>
 
   {:else if currentStage === 'AMMA_BLESSING'}
-    <!-- AMMA'S BLESSING CUTSCENE -->
+    <!-- AMMA'S BLESSING CUTSCENE WITH AMMA'S CHARACTER IMAGE & PORTRAIT -->
     <div class="scene-screen-frame">
       <div class="arcade-header-bar">
         <div class="arcade-corn-glyphs font-pixel">|||</div>
@@ -350,24 +375,108 @@
       </div>
 
       <div class="panoramic-canvas-stage">
-        <!-- Amma's dialogue window in center -->
+        <!-- Panoramic Background SVG -->
+        <svg viewBox="0 0 960 540" class="panorama-svg" preserveAspectRatio="xMidYMid slice" shape-rendering="crispEdges">
+          <rect x="0" y="0" width="960" height="90" fill="#FFF8EA" />
+          <rect x="0" y="90" width="960" height="70" fill="#FDE68A" />
+          <rect x="0" y="160" width="960" height="60" fill="#FDBA74" />
+          <rect x="0" y="220" width="960" height="60" fill="#FB923C" />
+          <rect x="680" y="130" width="60" height="60" fill="#FFFBEB" />
+          <polygon points="0,320 80,240 180,320 280,210 400,320 540,190 680,320 800,220 960,320" fill="#0F2E1B" />
+          <polygon points="0,340 120,260 220,340 340,240 480,340 600,250 720,340 860,260 960,340" fill="#1C4A2B" />
+          <rect x="0" y="320" width="960" height="60" fill="#C5A582" />
+          <path d="M 0 360 Q 240 330 520 360 T 960 350 L 960 540 L 0 540 Z" fill="#2D6A4F" />
+          <path d="M 0 400 Q 340 370 660 410 T 960 390 L 960 540 L 0 540 Z" fill="#40916C" />
+          <path d="M 0 450 Q 280 430 600 460 T 960 440 L 960 540 L 0 540 Z" fill="#52B788" />
+          <rect x="760" y="360" width="110" height="60" fill="#FFF8E6" stroke="#2B1B12" stroke-width="3" />
+          <polygon points="745,360 815,310 885,360" fill="#E76F51" stroke="#2B1B12" stroke-width="3" />
+        </svg>
+
+        <!-- Amma's Pixel Art Character Standing Sprite on bottom left -->
+        <div class="character-sprite-holder amma-sprite">
+          <svg viewBox="0 0 64 64" width="88" height="88" shape-rendering="crispEdges">
+            <!-- Ground Shadow -->
+            <rect x="18" y="58" width="28" height="4" fill="rgba(0,0,0,0.35)" />
+            <!-- Silver Hair Bun with White Jasmine Flowers -->
+            <rect x="26" y="8" width="12" height="10" fill="#E5E7EB" />
+            <rect x="24" y="6" width="6" height="4" fill="#FFFFFF" />
+            <rect x="34" y="6" width="6" height="4" fill="#FFFFFF" />
+            <!-- Face & Warm Skin -->
+            <rect x="22" y="16" width="20" height="14" fill="#B45309" />
+            <!-- Red Bindi / Tilak -->
+            <rect x="31" y="18" width="2" height="2" fill="#DC2626" />
+            <!-- Eyes & Kind Smile -->
+            <rect x="25" y="22" width="3" height="2" fill="#1C1917" />
+            <rect x="36" y="22" width="3" height="2" fill="#1C1917" />
+            <rect x="28" y="26" width="8" height="2" fill="#78350F" />
+            <!-- Gold Earrings -->
+            <rect x="20" y="22" width="2" height="3" fill="#FDE047" />
+            <rect x="42" y="22" width="2" height="3" fill="#FDE047" />
+            <!-- Traditional Saree - Turmeric Body with Madder Red Pallu -->
+            <rect x="18" y="30" width="28" height="26" fill="#F59E0B" />
+            <!-- Diagonal Red Pallu draped over shoulder -->
+            <polygon points="20,30 38,30 24,56 18,56" fill="#B91C1C" />
+            <!-- Gold Zari Border on Pallu and Hem -->
+            <rect x="18" y="54" width="28" height="3" fill="#FDE047" />
+            <!-- Gold Bangles on Wrists -->
+            <rect x="15" y="40" width="3" height="4" fill="#FDE047" />
+            <rect x="46" y="40" width="3" height="4" fill="#FDE047" />
+            <!-- Holding Traditional Brass Thali with Heritage Seeds -->
+            <rect x="24" y="38" width="16" height="5" fill="#D97706" />
+            <rect x="26" y="36" width="12" height="3" fill="#FEF08A" />
+            <!-- Sandals -->
+            <rect x="24" y="56" width="6" height="4" fill="#78350F" />
+            <rect x="34" y="56" width="6" height="4" fill="#78350F" />
+          </svg>
+        </div>
+
+        <!-- Amma's Terminal Dialogue Box with Portrait -->
         <div class="terminal-dialogue-box amma-box">
-          <div class="dialogue-header-badge font-pixel" style="color: #FFB703;">
-            <span>[ AMMA ]</span>
-            <span class="sub-role font-retro">Farm Matriarch</span>
-          </div>
+          <div class="dialogue-box-inner">
+            <!-- Amma Portrait Avatar Frame -->
+            <div class="dialogue-portrait-frame amma-portrait">
+              <svg viewBox="0 0 40 40" width="58" height="58" shape-rendering="crispEdges">
+                <rect width="40" height="40" fill="#241208" stroke="#FFB703" stroke-width="2" />
+                <!-- Silver Hair Bun with White Flowers -->
+                <rect x="15" y="4" width="10" height="6" fill="#E5E7EB" />
+                <rect x="17" y="3" width="6" height="2" fill="#FFFFFF" />
+                <!-- Face -->
+                <rect x="12" y="10" width="16" height="14" fill="#B45309" />
+                <!-- Bindi -->
+                <rect x="19" y="12" width="2" height="2" fill="#DC2626" />
+                <!-- Eyes & Smile -->
+                <rect x="14" y="16" width="2" height="2" fill="#1C1917" />
+                <rect x="24" y="16" width="2" height="2" fill="#1C1917" />
+                <rect x="17" y="20" width="6" height="2" fill="#78350F" />
+                <!-- Gold Earrings -->
+                <rect x="10" y="16" width="2" height="3" fill="#FDE047" />
+                <rect x="28" y="16" width="2" height="3" fill="#FDE047" />
+                <!-- Turmeric Saree with Red Pallu & Gold Border -->
+                <rect x="8" y="24" width="24" height="14" fill="#F59E0B" />
+                <polygon points="12,24 22,24 16,38 10,38" fill="#B91C1C" />
+                <rect x="15" y="24" width="2" height="14" fill="#FDE047" />
+              </svg>
+            </div>
 
-          <div class="dialogue-text-body font-retro" style="font-size: 1.4rem;">
-            {displayedText}
-            {#if isTyping}
-              <span class="cursor">▌</span>
-            {/if}
-          </div>
+            <div class="dialogue-text-column">
+              <div class="dialogue-header-badge font-pixel" style="color: #FFB703;">
+                <span>[ AMMA ]</span>
+                <span class="sub-role font-retro">Farm Matriarch</span>
+              </div>
 
-          <div class="dialogue-footer-strip" style="justify-content: center; margin-top: 14px;">
-            <button type="button" class="pixel-btn" onclick={handleStartMatchingGame}>
-              START WATER MANAGEMENT & CROP MATCHING CHALLENGE →
-            </button>
+              <div class="dialogue-text-body font-retro" style="font-size: 1.4rem;">
+                {displayedText}
+                {#if isTyping}
+                  <span class="cursor" style="color: #FFB703;">▌</span>
+                {/if}
+              </div>
+
+              <div class="dialogue-footer-strip" style="margin-top: 10px;">
+                <button type="button" class="pixel-btn btn-warning" onclick={handleStartMatchingGame}>
+                  START WATER MANAGEMENT & CROP MATCHING CHALLENGE →
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -435,22 +544,43 @@
 
         <!-- Terminal Dialogue Box on bottom center/right -->
         <div class="terminal-dialogue-box">
-          <div class="dialogue-header-badge font-pixel" style="color: #E63946;">
-            <span>[ HARI ]</span>
-            <span class="sub-role font-retro">Distressed Farmer</span>
-          </div>
+          <div class="dialogue-box-inner">
+            <!-- Worried Hari Portrait in Dialogue Box -->
+            <div class="dialogue-portrait-frame">
+              <svg viewBox="0 0 40 40" width="54" height="54" shape-rendering="crispEdges">
+                <rect width="40" height="40" fill="#241010" stroke="#E63946" stroke-width="2" />
+                <rect x="8" y="8" width="24" height="4" fill="#FBBF24" />
+                <rect x="12" y="3" width="16" height="6" fill="#F59E0B" />
+                <rect x="12" y="7" width="16" height="2" fill="#92400E" />
+                <rect x="13" y="12" width="14" height="12" fill="#D29A72" />
+                <rect x="15" y="16" width="2" height="2" fill="#1C1917" />
+                <rect x="23" y="16" width="2" height="2" fill="#1C1917" />
+                <!-- Worried open mouth -->
+                <rect x="18" y="21" width="4" height="2" fill="#78350F" />
+                <rect x="10" y="24" width="20" height="14" fill="#22C55E" />
+                <rect x="14" y="26" width="12" height="12" fill="#2563EB" />
+              </svg>
+            </div>
 
-          <div class="dialogue-text-body font-retro">
-            {displayedText}
-            {#if isTyping}
-              <span class="cursor">▌</span>
-            {/if}
-          </div>
+            <div class="dialogue-text-column">
+              <div class="dialogue-header-badge font-pixel" style="color: #E63946;">
+                <span>[ HARI ]</span>
+                <span class="sub-role font-retro">Distressed Farmer</span>
+              </div>
 
-          <div class="dialogue-footer-strip">
-            <button type="button" class="pixel-btn btn-danger" onclick={handleOpenScenariosHub}>
-              EXPLORE CRISIS SCENARIOS & ADAPTATION →
-            </button>
+              <div class="dialogue-text-body font-retro">
+                {displayedText}
+                {#if isTyping}
+                  <span class="cursor" style="color: #E63946;">▌</span>
+                {/if}
+              </div>
+
+              <div class="dialogue-footer-strip">
+                <button type="button" class="pixel-btn btn-danger" onclick={handleOpenScenariosHub}>
+                  EXPLORE CRISIS SCENARIOS & ADAPTATION →
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -713,16 +843,32 @@
     box-shadow: 0 0 16px rgba(0, 255, 102, 0.3), 0 4px 0 #000000;
     border-radius: 3px;
     margin: 0 30px 24px 140px;
-    padding: 16px 20px;
+    padding: 14px 18px;
+  }
+
+  .dialogue-box-inner {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .dialogue-portrait-frame {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .dialogue-text-column {
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
   }
 
   .amma-box {
-    margin: 40px auto;
-    max-width: 680px;
-    position: static;
+    margin: 0 30px 24px 140px;
+    position: relative;
+    border-color: #FFB703;
+    box-shadow: 0 0 16px rgba(255, 183, 3, 0.3), 0 4px 0 #000000;
   }
 
   .dialogue-header-badge {
