@@ -98,4 +98,4 @@ export interface ClimateModifiers {
   rainOffset: number;  // -20% to +20%
 }
 
-export type SceneView = 'INTRO' | 'REGION_SELECT' | 'SEASON_PLAY' | 'STRATEGY_COMPARE' | 'NASA_DATA' | 'STYLEGUIDE';
+export type SceneView = 'STORY_GAME' | 'INTRO' | 'REGION_SELECT' | 'SEASON_PLAY' | 'STRATEGY_COMPARE' | 'NASA_DATA' | 'STYLEGUIDE';

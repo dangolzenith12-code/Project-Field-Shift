@@ -5,12 +5,13 @@
   import RegionSelectScreen from './components/region/RegionSelectScreen.svelte';
   import FarmPlayScreen from './components/game/FarmPlayScreen.svelte';
   import GbaGame from './components/gba/GbaGame.svelte';
+  import StoryGame from './components/story/StoryGame.svelte';
   import CompareScreen from './components/compare/CompareScreen.svelte';
   import NasaDataView from './components/nasa/NasaDataView.svelte';
   import StyleguideView from './components/styleguide/StyleguideView.svelte';
 
-  // Master State Machine
-  let currentView = $state<SceneView>('INTRO');
+  // Master State Machine - Starts directly into Hari's Story Game!
+  let currentView = $state<SceneView>('STORY_GAME');
   let selectedRegion = $state<RegionInfo>(REGIONS.punjab);
   let eraIndex = $state(0);
   const currentEra = $derived(ERAS[eraIndex]);
@@ -116,28 +117,22 @@
       <!-- Navigation Tabs -->
       <nav class="nav-links">
         <button 
-          class="nav-tab {currentView === 'SEASON_PLAY' && playMode === 'gba' ? 'active' : ''}" 
-          onclick={() => { setView('SEASON_PLAY'); playMode = 'gba'; }}
+          class="nav-tab {currentView === 'STORY_GAME' ? 'active' : ''}" 
+          onclick={() => setView('STORY_GAME')}
         >
-          🎮 GBA RPG (Overworld)
+          🎮 Hari's Story Game
         </button>
         <button 
-          class="nav-tab {currentView === 'SEASON_PLAY' && playMode === 'almanac' ? 'active' : ''}" 
-          onclick={() => { setView('SEASON_PLAY'); playMode = 'almanac'; }}
+          class="nav-tab {currentView === 'SEASON_PLAY' ? 'active' : ''}" 
+          onclick={() => setView('SEASON_PLAY')}
         >
-          📜 Almanac Hero
+          📜 Freeplay Almanac
         </button>
         <button 
           class="nav-tab {currentView === 'STRATEGY_COMPARE' ? 'active' : ''}" 
           onclick={() => setView('STRATEGY_COMPARE')}
         >
           📊 Compare (3 Rotations)
-        </button>
-        <button 
-          class="nav-tab {currentView === 'REGION_SELECT' ? 'active' : ''}" 
-          onclick={() => setView('REGION_SELECT')}
-        >
-          🗺️ Regions
         </button>
         <button 
           class="nav-tab {currentView === 'NASA_DATA' ? 'active' : ''}" 
@@ -166,7 +161,12 @@
 
   <!-- Active Main Content Scene -->
   <main class="app-main">
-    {#if currentView === 'INTRO'}
+    {#if currentView === 'STORY_GAME'}
+      <StoryGame 
+        currentRegion={selectedRegion}
+        onViewStyleguide={() => setView('STYLEGUIDE')}
+      />
+    {:else if currentView === 'INTRO'}
       <IntroScreen 
         onStartGame={() => setView('REGION_SELECT')} 
         onViewStyleguide={() => setView('STYLEGUIDE')}
