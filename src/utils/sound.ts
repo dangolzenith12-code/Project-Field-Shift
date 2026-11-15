@@ -244,6 +244,16 @@ class RetroSoundFX {
       osc.stop(this.ctx.currentTime + 0.09);
     } catch {}
   }
+
+  // Erosion warning sound
+  playErosion() {
+    this.playAlert();
+  }
+
+  // Telemetry chirp
+  playTelemetry() {
+    this.playScan();
+  }
 }
 
 export const sfx = new RetroSoundFX();
