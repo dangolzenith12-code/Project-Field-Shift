@@ -47,16 +47,19 @@
 
     <!-- Tick mark for p10 -->
     <line x1={x10} y1="8" x2={x10} y2="38" stroke="var(--journal-border, #1B2B1F)" stroke-width="1.8" stroke-linecap="round" />
-    <text x={x10} y="43" font-family="Space Mono, monospace" font-size="8" fill="var(--journal-border, #1B2B1F)" text-anchor="middle">p10:{p10.toFixed(0)}%</text>
 
     <!-- Tick mark for p90 -->
     <line x1={x90} y1="8" x2={x90} y2="38" stroke="var(--journal-border, #1B2B1F)" stroke-width="1.8" stroke-linecap="round" />
-    <text x={x90} y="43" font-family="Space Mono, monospace" font-size="8" fill="var(--journal-border, #1B2B1F)" text-anchor="middle">p90:{p90.toFixed(0)}%</text>
 
     <!-- Median Pin with gold seed circle -->
     <line x1={xMed} y1="6" x2={xMed} y2="38" stroke="var(--journal-border, #1B2B1F)" stroke-width="3.5" stroke-linecap="round" />
     <circle cx={xMed} cy="22" r="5" fill="var(--journal-gold, #E5A93C)" stroke="var(--journal-border, #1B2B1F)" stroke-width="1.8" />
   </svg>
+
+  <div class="range-labels font-data">
+    <span>p10: {p10.toFixed(0)}%</span>
+    <span>p90: {p90.toFixed(0)}%</span>
+  </div>
 
   <div class="caption-note font-data">
     <span>Monotonic uncertainty ribbon: empirical distribution across 40 historical NASA POWER seasons.</span>
@@ -101,6 +104,15 @@
     width: 100%;
     height: auto;
     overflow: visible;
+  }
+
+  .range-labels {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 0.65rem;
+    color: var(--journal-ink, #1B2B1F);
+    padding: 0 2px;
   }
 
   .caption-note {

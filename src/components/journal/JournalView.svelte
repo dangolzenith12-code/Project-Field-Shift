@@ -10,9 +10,10 @@
     meterExtents,
     metersAt,
     regionById,
-    sims,
-    weatherFor
+    sims
   } from '../../lib/data';
+  import { latestFullYear, loadRegionWeather } from '../../lib/regionalWeather';
+  import type { RegionalWeather } from '../../../contracts/weather';
   import type { StrategyId } from '../../../contracts/sim-output';
 
   type Scene = 'intro' | 'region' | 'season' | 'compare' | 'reflect';
@@ -45,7 +46,28 @@
   let { onBack }: Props = $props();
 
   const region = $derived(regionById(regionId));
-  const weather = $derived(weatherFor(regionId));
+
+  // Lazy per-region weather: only the viewed region's chunk is downloaded.
+  let weatherRecords = $state<RegionalWeather | null>(null);
+  let weatherState = $state<'loading' | 'ready' | 'missing'>('loading');
+  let weatherRequest = 0;
+
+  $effect(() => {
+    const id = regionId;
+    const token = ++weatherRequest;
+    weatherState = 'loading';
+    loadRegionWeather(id)
+      .then((records) => {
+        if (token !== weatherRequest) return;
+        weatherRecords = records ? latestFullYear(records) : null;
+        weatherState = records ? 'ready' : 'missing';
+      })
+      .catch(() => {
+        if (token !== weatherRequest) return;
+        weatherRecords = null;
+        weatherState = 'missing';
+      });
+  });
 </script>
 
 <div class="journal-wrapper">
@@ -103,25 +125,30 @@
             <circle cx="590" cy="55" r="27" fill={region.sun} />
           </svg>
         </div>
-        {#if weather}
-          <WeatherStrip records={weather} />
+        {#if weatherState === 'ready' && weatherRecords}
+          <WeatherStrip records={weatherRecords} source="NASA POWER · precomputed" />
+        {:else if weatherState === 'loading'}
+          <p class="muted">Loading weekly weather…</p>
         {:else}
-          <p class="muted">No weekly weather dataset loaded for {region.label} yet — Punjab is the current demonstration dataset.</p>
+          <p class="muted">Weather dataset unavailable for {region.label}.</p>
         {/if}
-        <h2 class="subhead">The field's crop calendar <span class="muted">(shared catalogue · synthetic placeholder values)</span></h2>
-        <ul class="crop-list">
-          {#each crops as c (c.id)}
-            <li>
-              <strong>{c.name}</strong>
-              <span>water use {c.waterUse} mm/season</span>
-              <span>roots {c.rootingDepth} cm</span>
-              <span>{c.nitrogenFixation ? 'fixes nitrogen' : 'no N fixation'}</span>
-              <span>cover {c.coverValue.toFixed(2)}</span>
-              <span class="tag">{c.season.join(' / ')}</span>
-            </li>
-          {/each}
-        </ul>
-        <p class="muted">Illustrative scene only. Environmental indicators will be connected in later phases.</p>
+        <details class="crop-details">
+          <summary>The field's crop calendar <span class="muted">{crops.length} crops · cited sources</span></summary>
+          <ul class="crop-list">
+            {#each crops as c (c.id)}
+              <li>
+                <span class="crop-head">
+                  <strong>{c.name}</strong>
+                  <span class="tag">{c.season.join(' / ')}</span>
+                </span>
+                <span class="crop-facts">
+                  {c.waterUse} mm water · roots {c.rootingDepth} cm · cover {c.coverValue.toFixed(2)}{c.nitrogenFixation ? ' · fixes N' : ''}
+                </span>
+              </li>
+            {/each}
+          </ul>
+        </details>
+        <p class="muted">Illustrative plot. Environmental indicators connect in later phases.</p>
         <button class="primary" onclick={next}>See the possible paths</button>
       </section>
     {:else if active === 'compare'}
@@ -158,7 +185,7 @@
             </article>
           {/each}
         </div>
-        <p class="muted">Bars show the p10–p90 range with the most likely value pinned; scales are shared across strategies for comparison. Strategy results are synthetic placeholders until the simulation and evidence pipeline are implemented, and meter units are provisional.</p>
+        <p class="muted">Bands show p10–p90 with the most likely value pinned; scales shared across strategies. Synthetic placeholders until the simulation pipeline lands; units provisional.</p>
         <button class="primary" onclick={next}>Reflect</button>
       </section>
     {:else}
@@ -177,7 +204,7 @@
   .journal-wrapper {
     background-color: var(--journal-paper, #FAF6ED);
     color: var(--journal-ink, #1B2B1F);
-    min-height: calc(100vh - 56px);
+    min-height: calc(100vh - 60px);
     padding: 24px 16px;
   }
   .shell {
@@ -185,12 +212,14 @@
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
   }
   .topbar {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
+    gap: 8px 12px;
     border-bottom: 2px solid var(--journal-ink, #1B2B1F);
     padding-bottom: 12px;
   }
@@ -207,7 +236,7 @@
   }
   .back-btn:hover {
     transform: translateY(-1px);
-    background-color: #F0EAD6;
+    background-color: #f0ead6;
   }
   .wordmark {
     font-weight: 700;
@@ -217,6 +246,7 @@
     color: var(--journal-forest, #1F3825);
   }
   .eyebrow {
+    margin-left: 10px;
     font-size: 0.78rem;
     letter-spacing: 1px;
     text-transform: uppercase;
@@ -225,10 +255,17 @@
   }
   .scene-nav {
     display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .scene-nav::-webkit-scrollbar {
+    display: none;
   }
   .scene-nav button {
+    flex: 0 0 auto;
+    white-space: nowrap;
     background: var(--journal-paper, #FAF6ED);
     border: 2px solid var(--journal-ink, #1B2B1F);
     color: var(--journal-ink, #1B2B1F);
@@ -242,7 +279,7 @@
   }
   .scene-nav button:hover {
     transform: translateY(-1px);
-    background-color: #F0EAD6;
+    background-color: #f0ead6;
   }
   .scene-nav button.current {
     background-color: var(--journal-forest, #1F3825);
@@ -251,18 +288,19 @@
     box-shadow: 0 3px 0 var(--journal-ink, #1B2B1F);
     font-weight: 700;
   }
-  .hero, .panel {
-    background-color: #FFFFFF;
+  .hero,
+  .panel {
+    background-color: #ffffff;
     border: 2.5px solid var(--journal-ink, #1B2B1F);
     border-radius: var(--radius-md, 8px);
     box-shadow: 0 4px 0 var(--journal-ink, #1B2B1F);
-    padding: 32px 28px;
+    padding: 24px 20px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
   }
   h1 {
-    font-size: 2rem;
+    font-size: 1.8rem;
     line-height: 1.25;
     font-family: var(--font-display, 'Fraunces', serif);
     color: var(--journal-forest, #1F3825);
@@ -292,7 +330,7 @@
     transition: transform 0.15s, background-color 0.15s;
   }
   button.primary:hover {
-    background-color: #2D5237;
+    background-color: #2d5237;
     transform: translateY(-1px);
     box-shadow: 0 4px 0 var(--journal-ink, #1B2B1F);
   }
@@ -307,43 +345,86 @@
     max-width: 320px;
     box-shadow: 0 2px 0 var(--journal-ink, #1B2B1F);
   }
-  .field-art svg {
+  .field-art {
     width: 100%;
-    max-height: 200px;
+    max-width: 640px;
+    margin: 4px 0;
+  }
+  .field-art svg {
+    display: block;
+    width: 100%;
+    max-height: 180px;
     border-radius: 6px;
     border: 2px solid var(--journal-ink, #1B2B1F);
   }
-  .subhead {
-    font-size: 1.15rem;
-    font-family: var(--font-display, 'Fraunces', serif);
+  .crop-details {
+    border: 2px solid var(--journal-ink, #1B2B1F);
+    border-radius: 8px;
+    background: var(--journal-paper, #FAF6ED);
+    box-shadow: 0 2px 0 var(--journal-ink, #1B2B1F);
+  }
+  .crop-details summary {
+    cursor: pointer;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--journal-ink, #1B2B1F);
+    list-style: none;
+  }
+  .crop-details summary::-webkit-details-marker {
+    display: none;
+  }
+  .crop-details summary::before {
+    content: '▸';
+    display: inline-block;
+    width: 1.1em;
     color: var(--journal-forest, #1F3825);
-    margin-top: 12px;
+  }
+  .crop-details[open] summary::before {
+    content: '▾';
+  }
+  .crop-details summary .muted {
+    margin-left: 6px;
+    font-weight: 400;
   }
   .crop-list {
     list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 6px;
+    padding: 0 12px 12px;
   }
   .crop-list li {
     display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: center;
-    background: var(--journal-paper, #FAF6ED);
-    border: 1.5px solid var(--journal-ink, #1B2B1F);
-    box-shadow: 0 2px 0 var(--journal-ink, #1B2B1F);
-    padding: 8px 14px;
+    flex-direction: column;
+    gap: 2px;
+    background: #ffffff;
+    border: 1.5px solid color-mix(in srgb, var(--journal-ink) 35%, transparent);
+    padding: 8px 12px;
     border-radius: 6px;
-    font-size: 0.88rem;
+    font-size: 0.8rem;
+    color: var(--journal-ink-soft, #2D4233);
+  }
+  .crop-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .crop-head strong {
+    color: var(--journal-ink, #1B2B1F);
+    font-size: 0.9rem;
+  }
+  .crop-facts {
+    font-size: 0.75rem;
   }
   .crop-list .tag {
+    flex: 0 0 auto;
     background-color: var(--journal-forest, #1F3825);
     color: var(--journal-paper, #FAF6ED);
-    padding: 2px 10px;
+    padding: 1px 8px;
     border-radius: 4px;
-    font-size: 0.75rem;
+    font-size: 0.68rem;
     font-weight: 700;
   }
   .horizon-toggle {
@@ -371,7 +452,7 @@
     gap: 16px;
   }
   .strat {
-    background: #FFFFFF;
+    background: #ffffff;
     border: 2px solid var(--journal-ink, #1B2B1F);
     box-shadow: 0 3px 0 var(--journal-ink, #1B2B1F);
     border-radius: 8px;
@@ -392,8 +473,21 @@
   }
   footer {
     text-align: center;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: color-mix(in srgb, var(--journal-ink) 70%, transparent);
     padding: 16px 0;
+  }
+  @media (max-width: 560px) {
+    h1 {
+      font-size: 1.3rem;
+    }
+    .hero,
+    .panel {
+      padding: 20px 16px;
+    }
+    .eyebrow {
+      display: block;
+      margin-left: 0;
+    }
   }
 </style>

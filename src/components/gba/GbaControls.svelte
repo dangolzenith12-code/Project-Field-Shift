@@ -261,4 +261,28 @@
     background-color: var(--chili);
     color: var(--paper);
   }
+
+  @media (max-width: 420px) {
+    .gba-gamepad-deck {
+      padding: var(--space-2) var(--space-3);
+      gap: var(--space-2);
+    }
+    .dpad-container {
+      width: 92px;
+      height: 92px;
+    }
+    .dpad-cross {
+      width: 84px;
+      height: 84px;
+      grid-template-columns: 28px 28px 28px;
+      grid-template-rows: 28px 28px 28px;
+    }
+    .round-btn {
+      width: 42px;
+      height: 42px;
+    }
+    .action-buttons-container {
+      gap: 10px;
+    }
+  }
 </style>

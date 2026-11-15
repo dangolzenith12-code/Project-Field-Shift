@@ -1,0 +1,48 @@
+/**
+ * Legacy Harvest Almanac token aliases.
+ *
+ * The current Botanical Field Journal design system (src/app.css, PR #11)
+ * defines its own --journal-* palette, fonts, radii and shadows. A few
+ * components still in the tree were never migrated and keep referencing the
+ * old Harvest Almanac names (NasaDataView, StyleguideView, GbaControls,
+ * Slider, FarmPlayScreen...). Without these aliases those screens lose their
+ * card backgrounds, ink outlines and hard offset shadows.
+ *
+ * Only names the new system does NOT define are declared here, so upstream's
+ * tokens (--font-display, --radius-sm, --shadow-active, --fast, --spring...)
+ * stay authoritative for the redesign.
+ */
+:root {
+  /* 9 semantic colors */
+  --ink: #2b1b12;
+  --paper: #fff3d6;
+  --soil: #8a4b2a;
+  --turmeric: #ffb703;
+  --paddy: #3fa34d;
+  --monsoon: #2f6fed;
+  --chili: #e63946;
+  --dusk: #7b4fa3;
+  --sky: #bde8f5;
+
+  /* Outlines, geometry and hard offset shadows */
+  --outline: 3px solid var(--ink);
+  --outline-thick: 4px solid var(--ink);
+  --outline-thin: 2px solid var(--ink);
+  --radius: 16px;
+  --radius-pill: 9999px;
+  --shadow: 0 5px 0 var(--ink);
+  --shadow-sm: 0 2px 0 var(--ink);
+  --shadow-lg: 0 8px 0 var(--ink);
+
+  /* Motion tokens that app.css does not define */
+  --med: 240ms;
+  --slow: 600ms;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* Spacing scale: 4, 8, 16, 24, 40 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 40px;
+}

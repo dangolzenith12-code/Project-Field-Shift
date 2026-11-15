@@ -29,6 +29,7 @@
     onAdvanceSeason: () => void;
     onOpenStory?: () => void;
     onReturnToStart?: () => void;
+    onOpenJournal?: () => void;
   }
 
   let { 
@@ -43,7 +44,8 @@
     onOpenStyleguide,
     onAdvanceSeason,
     onOpenStory,
-    onReturnToStart
+    onReturnToStart,
+    onOpenJournal
   }: Props = $props();
 
   // Player State
@@ -629,7 +631,7 @@
             {#if onOpenStory}
               <button class="menu-item" onclick={() => { isMenuOpen = false; onOpenStory?.(); }}>
                 <span class="bullet">▶</span>
-                <span>Enter Punjab Story Mode</span>
+                <span>Enter {currentRegion.name} Story Mode</span>
               </button>
             {/if}
             <button class="menu-item" onclick={() => { isMenuOpen = false; onOpenCompare(); }}>
@@ -639,6 +641,16 @@
             <button class="menu-item" onclick={() => { isMenuOpen = false; onOpenNasa(); }}>
               <span class="bullet">▶</span>
               <span>NASA Data & Evidence</span>
+            </button>
+            {#if onOpenJournal}
+              <button class="menu-item" onclick={() => { isMenuOpen = false; onOpenJournal?.(); }}>
+                <span class="bullet">▶</span>
+                <span>Field Journal</span>
+              </button>
+            {/if}
+            <button class="menu-item" onclick={() => { isMenuOpen = false; onOpenStyleguide(); }}>
+              <span class="bullet">▶</span>
+              <span>Design Styleguide</span>
             </button>
             <button class="menu-item" onclick={() => { isMenuOpen = false; onOpenRegionSelect(); }}>
               <span class="bullet">▶</span>

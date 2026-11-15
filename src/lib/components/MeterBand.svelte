@@ -36,3 +36,59 @@
   </span>
   <span class="meter-value">{fv}<small>{unit}</small></span>
 </div>
+
+<style>
+  .meter {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "label value" "track track";
+    row-gap: 4px;
+    column-gap: 10px;
+    margin: 10px 0;
+  }
+  .meter-label {
+    grid-area: label;
+    align-self: end;
+    font-size: 0.8rem;
+    color: var(--meter-label-color, #52604c);
+  }
+  .meter-track {
+    grid-area: track;
+    position: relative;
+    display: block;
+    height: 10px;
+    background: var(--meter-track-bg, #eceade);
+    border-radius: 999px;
+  }
+  .meter-band {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    background: var(--meter-band-bg, #b3c7a4);
+    border-radius: 999px;
+  }
+  .meter-pin {
+    position: absolute;
+    top: -3px;
+    width: 4px;
+    height: 16px;
+    background: var(--meter-pin-bg, #24372b);
+    border-radius: 2px;
+  }
+  .meter-value {
+    grid-area: value;
+    align-self: end;
+    font-weight: 600;
+    font-size: 0.88rem;
+    line-height: 1.1;
+    text-align: right;
+    color: var(--meter-value-color, #24372b);
+  }
+  .meter-value small {
+    display: block;
+    font-weight: 400;
+    font-size: 0.62rem;
+    letter-spacing: 0.02em;
+    color: var(--meter-unit-color, #788064);
+  }
+</style>

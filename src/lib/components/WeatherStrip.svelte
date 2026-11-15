@@ -3,8 +3,10 @@
 
   interface Props {
     records: RegionalWeather;
+    /** Provenance label shown in the caption. */
+    source?: string;
   }
-  let { records }: Props = $props();
+  let { records, source = 'synthetic mock' }: Props = $props();
 
   const W = 720;
   const BASE = 118;
@@ -24,9 +26,9 @@
   <svg
     viewBox="0 0 720 150"
     role="img"
-    aria-label="Illustrative weekly weather strip from synthetic mock data: rain bars, temperature range lines, and soil wetness dots."
+    aria-label="Weekly weather strip: rain bars, temperature range lines, and soil wetness dots."
   >
-    <line x1="0" x2={W} y1={BASE} y2={BASE} stroke="#d8d5ca" />
+    <line class="axis" x1="0" x2={W} y1={BASE} y2={BASE} />
     {#each records as r, i (r.year + '-' + r.week)}
       {@const x = step * (i + 0.5)}
       {#if r.rain != null && r.rain > 0}
@@ -45,6 +47,52 @@
     <span><i class="swatch" style:background="#5b7fa6"></i>Rain (mm/week)</span>
     <span><i class="swatch" style:background="#b65d3d"></i>Temperature range (°C)</span>
     <span><i class="swatch" style:background="#486c42"></i>Soil wetness (fraction)</span>
-    <span class="muted">{records.length} of ~52 weeks loaded · synthetic mock · missing observations are left as gaps, never interpolated</span>
+    <span class="legend-note">{records.length} weeks · {source} · gaps not interpolated</span>
   </figcaption>
 </figure>
+
+<style>
+  .weather {
+    width: 100%;
+    max-width: 720px;
+    margin: 18px 0;
+  }
+  .weather svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: var(--weather-bg, #fffdf7);
+    border: 1px solid var(--weather-border-color, #e1ded3);
+    border-radius: 8px;
+  }
+  .axis {
+    stroke: var(--weather-axis-color, #d8d5ca);
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    margin: 10px 0 0;
+    font-size: 0.78rem;
+    color: var(--weather-legend-color, #52604c);
+  }
+  .legend-note {
+    margin-left: auto;
+    opacity: 0.75;
+  }
+  .swatch {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 6px;
+    border-radius: 2px;
+    vertical-align: -1px;
+  }
+  @media (max-width: 640px) {
+    .legend-note {
+      margin-left: 0;
+      width: 100%;
+    }
+  }
+</style>

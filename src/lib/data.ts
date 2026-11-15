@@ -1,19 +1,17 @@
 /**
- * Typed data layer for the Phase 0 frontend.
- * Everything here is SYNTHETIC placeholder data (see README "Data integrity");
- * contracts/ holds the frozen Phase 0 types the simulation pipeline will fill.
+ * Typed data layer for the frontend.
+ * Strategy outputs under mock/ are SYNTHETIC placeholders (see README "Data integrity");
+ * contracts/ holds the frozen Phase 0 types, and data/ holds curated/precomputed datasets
+ * (cited crop traits, NASA POWER weekly weather) wired by later phases.
  */
 import type { CropCatalog } from '../../contracts/crops';
 import type { MeterValues, SimulationOutput, StrategyId } from '../../contracts/sim-output';
-import type { RegionalWeather } from '../../contracts/weather';
-import cropsJson from './mock/crops.json';
+import cropsJson from './data/crops.json';
 import simExistingJson from './mock/sim-output-existing.json';
 import simIncomeJson from './mock/sim-output-income.json';
 import simResilienceJson from './mock/sim-output.json';
-import weatherPunjabJson from './mock/weather-punjab.json';
 
 export const crops = cropsJson as unknown as CropCatalog;
-export const weatherPunjab = weatherPunjabJson as unknown as RegionalWeather;
 
 export const sims: Record<StrategyId, SimulationOutput> = {
   existing_rotation: simExistingJson as unknown as SimulationOutput,
@@ -148,9 +146,4 @@ export const REGIONS: RegionOption[] = [
 
 export function regionById(id: string): RegionOption {
   return REGIONS.find((r) => r.id === id) ?? REGIONS[0];
-}
-
-/** One file per region per the weather contract; only the Punjab mock exists in Phase 0. */
-export function weatherFor(regionId: string): RegionalWeather | null {
-  return regionId === 'punjab' ? weatherPunjab : null;
 }

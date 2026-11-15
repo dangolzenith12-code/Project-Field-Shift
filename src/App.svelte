@@ -176,6 +176,7 @@
           onOpenStory={() => setView(selectedRegion.id === 'karnataka' ? 'KARNATAKA_STORY' : 'PUNJAB_STORY')}
           onReturnToStart={() => setView('START')}
           onOpenStyleguide={() => setView('STYLEGUIDE')}
+          onOpenJournal={() => setView('JOURNAL')}
           onAdvanceSeason={advanceSeason}
         />
       </div>
@@ -205,20 +206,26 @@
       />
     {:else if currentView === 'STRATEGY_COMPARE'}
       <!-- Strategy Comparison / Monte Carlo Ribbons -->
-      <CompareScreen 
-        regionId={selectedRegion.id}
-        onSelectStrategy={handleSelectStrategy}
-        onBack={() => setView(previousView === 'GBA_GAME' ? 'GBA_GAME' : (selectedRegion.id === 'karnataka' ? 'KARNATAKA_STORY' : 'PUNJAB_STORY'))}
-      />
+      <div class="paper-view journal-paper-texture">
+        <CompareScreen 
+          regionId={selectedRegion.id}
+          onSelectStrategy={handleSelectStrategy}
+          onBack={() => setView(previousView === 'GBA_GAME' ? 'GBA_GAME' : (selectedRegion.id === 'karnataka' ? 'KARNATAKA_STORY' : 'PUNJAB_STORY'))}
+        />
+      </div>
     {:else if currentView === 'JOURNAL'}
       <!-- Field Journal View -->
       <JournalView onBack={() => setView(previousView === 'GBA_GAME' ? 'GBA_GAME' : (selectedRegion.id === 'karnataka' ? 'KARNATAKA_STORY' : 'PUNJAB_STORY'))} />
     {:else if currentView === 'NASA_DATA'}
       <!-- NASA Earth Science Logbook & Limitations -->
-      <NasaDataView onBack={() => setView(previousView === 'GBA_GAME' ? 'GBA_GAME' : (selectedRegion.id === 'karnataka' ? 'KARNATAKA_STORY' : 'PUNJAB_STORY'))} />
+      <div class="paper-view journal-paper-texture">
+        <NasaDataView onBack={() => setView(previousView === 'GBA_GAME' ? 'GBA_GAME' : (selectedRegion.id === 'karnataka' ? 'KARNATAKA_STORY' : 'PUNJAB_STORY'))} />
+      </div>
     {:else if currentView === 'STYLEGUIDE'}
       <!-- Design Styleguide -->
-      <StyleguideView onBack={() => setView(previousView === 'GBA_GAME' ? 'GBA_GAME' : (selectedRegion.id === 'karnataka' ? 'KARNATAKA_STORY' : 'PUNJAB_STORY'))} />
+      <div class="paper-view journal-paper-texture">
+        <StyleguideView onBack={() => setView(previousView === 'GBA_GAME' ? 'GBA_GAME' : (selectedRegion.id === 'karnataka' ? 'KARNATAKA_STORY' : 'PUNJAB_STORY'))} />
+      </div>
     {/if}
   </main>
 </div>
@@ -308,6 +315,15 @@
     flex-grow: 1;
     display: flex;
     flex-direction: column;
+  }
+
+  /* Journal-styled screens that still sit on legacy paper tokens get the
+     botanical paper backdrop instead of the dark app canvas. */
+  .paper-view {
+    flex-grow: 1;
+    min-height: calc(100vh - 60px);
+    background-color: var(--journal-paper, #F9F6EE);
+    color: var(--journal-ink, #1B2B1F);
   }
 
   .fullscreen-game-container {
