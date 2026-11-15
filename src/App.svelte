@@ -4,6 +4,7 @@
   import IntroScreen from './components/intro/IntroScreen.svelte';
   import RegionSelectScreen from './components/region/RegionSelectScreen.svelte';
   import FarmPlayScreen from './components/game/FarmPlayScreen.svelte';
+  import GbaGame from './components/gba/GbaGame.svelte';
   import CompareScreen from './components/compare/CompareScreen.svelte';
   import NasaDataView from './components/nasa/NasaDataView.svelte';
   import StyleguideView from './components/styleguide/StyleguideView.svelte';
@@ -21,6 +22,9 @@
 
   // Live Farm Meters
   let meters = $state<FarmMeters>({ ...REGIONS.punjab.initialMeters });
+
+  // Play Mode: 'gba' (GBA Pokémon/Zelda style) vs 'almanac' (classic illustrated almanac)
+  let playMode = $state<'gba' | 'almanac'>('gba');
 
   // Weather condition for graphics
   let weatherCondition = $state<'normal' | 'rain' | 'dry' | 'harvest'>('normal');
@@ -112,10 +116,16 @@
       <!-- Navigation Tabs -->
       <nav class="nav-links">
         <button 
-          class="nav-tab {currentView === 'SEASON_PLAY' ? 'active' : ''}" 
-          onclick={() => setView('SEASON_PLAY')}
+          class="nav-tab {currentView === 'SEASON_PLAY' && playMode === 'gba' ? 'active' : ''}" 
+          onclick={() => { setView('SEASON_PLAY'); playMode = 'gba'; }}
         >
-          🌾 Farm
+          🎮 GBA RPG (Overworld)
+        </button>
+        <button 
+          class="nav-tab {currentView === 'SEASON_PLAY' && playMode === 'almanac' ? 'active' : ''}" 
+          onclick={() => { setView('SEASON_PLAY'); playMode = 'almanac'; }}
+        >
+          📜 Almanac Hero
         </button>
         <button 
           class="nav-tab {currentView === 'STRATEGY_COMPARE' ? 'active' : ''}" 
@@ -168,18 +178,33 @@
         onBack={() => setView('INTRO')}
       />
     {:else if currentView === 'SEASON_PLAY'}
-      <FarmPlayScreen 
-        currentRegion={selectedRegion}
-        {currentEra}
-        {meters}
-        {currentSeasonName}
-        {weatherCondition}
-        onOpenCompare={() => setView('STRATEGY_COMPARE')}
-        onChangeRegion={() => setView('REGION_SELECT')}
-        onViewNasaDocs={() => setView('NASA_DATA')}
-        onAdvanceSeason={advanceSeason}
-        onTriggerEvent={handleTriggerEvent}
-      />
+      {#if playMode === 'gba'}
+        <GbaGame 
+          currentRegion={selectedRegion}
+          {currentEra}
+          {meters}
+          {currentSeasonName}
+          {weatherCondition}
+          onOpenCompare={() => setView('STRATEGY_COMPARE')}
+          onOpenNasa={() => setView('NASA_DATA')}
+          onOpenRegionSelect={() => setView('REGION_SELECT')}
+          onOpenStyleguide={() => setView('STYLEGUIDE')}
+          onAdvanceSeason={advanceSeason}
+        />
+      {:else}
+        <FarmPlayScreen 
+          currentRegion={selectedRegion}
+          {currentEra}
+          {meters}
+          {currentSeasonName}
+          {weatherCondition}
+          onOpenCompare={() => setView('STRATEGY_COMPARE')}
+          onChangeRegion={() => setView('REGION_SELECT')}
+          onViewNasaDocs={() => setView('NASA_DATA')}
+          onAdvanceSeason={advanceSeason}
+          onTriggerEvent={handleTriggerEvent}
+        />
+      {/if}
     {:else if currentView === 'STRATEGY_COMPARE'}
       <CompareScreen 
         onSelectStrategy={handleSelectStrategy}
