@@ -160,6 +160,7 @@ export const DIALOGUE_NODES: Record<string, DialogueNode> = {
       "Open our rotation almanac and see for yourself how the climate risk shifts."
     ],
     choices: [
+      { text: "[◆ MINI-GAME] Start Precision Sowing Drill (NASA SMAP)", action: 'play_sowing' },
       { text: "Open 3-Rotation Compare Matrix", action: 'open_compare' },
       { text: "Let me inspect the north field first.", action: 'close' }
     ]
@@ -175,6 +176,7 @@ export const DIALOGUE_NODES: Record<string, DialogueNode> = {
       "Go inspect the tubewell pump—the satellite telemetry chips we installed will show you the regional aquifer trend."
     ],
     choices: [
+      { text: "[◆ MINI-GAME] Calibrate Tubewell Valves", action: 'play_tubewell' },
       { text: "I'll go check the tubewell pump.", action: 'close' }
     ]
   },
@@ -190,6 +192,7 @@ export const DIALOGUE_NODES: Record<string, DialogueNode> = {
       "Current Tubewell Head Pressure: Marginal (42% capacity). Excessive rice flooding risks pump burnout during dry spells."
     ],
     choices: [
+      { text: "[◆ MINI-GAME] Balance Tubewell Valves (NASA GRACE)", action: 'play_tubewell' },
       { text: "Review NASA Groundwater Citations", action: 'open_nasa' },
       { text: "Compare Water-Smart Rotations", action: 'open_compare' },
       { text: "Step away from pump.", action: 'close' }
@@ -208,6 +211,7 @@ export const DIALOGUE_NODES: Record<string, DialogueNode> = {
       "Consecutive Dry Spell Days: 18 days above historical normal. High evaporative soil moisture loss detected."
     ],
     choices: [
+      { text: "[◆ MINI-GAME] Deploy Sluice Runoff Shield (NASA GPM)", action: 'play_sluice' },
       { text: "Open Full NASA Data Glossary", action: 'open_nasa' },
       { text: "Check field moisture impact", action: 'close' }
     ]
@@ -224,6 +228,7 @@ export const DIALOGUE_NODES: Record<string, DialogueNode> = {
       "Bare fallow will accelerate wind erosion. Planting a cover crop or switching to drought-hardy millets will protect the organic carbon layer."
     ],
     choices: [
+      { text: "[◆ MINI-GAME] Start Precision Sowing Drill (NASA SMAP)", action: 'play_sowing' },
       { text: "Open 3-Rotation Compare Matrix", action: 'open_compare' },
       { text: "Advance Season & Sow Seeds", action: 'advance_season' },
       { text: "Back to walking.", action: 'close' }
@@ -240,6 +245,7 @@ export const DIALOGUE_NODES: Record<string, DialogueNode> = {
       "Soil Organic Carbon index is steady at 0.65%."
     ],
     choices: [
+      { text: "[◆ MINI-GAME] Deploy Heatwave Bio-Shield (NASA MERRA-2)", action: 'play_heatwave' },
       { text: "Open 3-Rotation Strategy Matrix", action: 'open_compare' },
       { text: "Leave soil undisturbed.", action: 'close' }
     ]

@@ -14,6 +14,10 @@
   import GbaDialogBox from './GbaDialogBox.svelte';
   import GbaHud from './GbaHud.svelte';
   import GbaControls from './GbaControls.svelte';
+  import SowingTimingGame from '../game/SowingTimingGame.svelte';
+  import TubewellPumpGame from '../game/TubewellPumpGame.svelte';
+  import SluiceRunoffGame from '../game/SluiceRunoffGame.svelte';
+  import HeatwaveShieldGame from '../game/HeatwaveShieldGame.svelte';
 
   interface Props {
     currentRegion: RegionInfo;
@@ -265,10 +269,24 @@
     }
   }
 
+  let activeMiniGame = $state<'sowing' | 'tubewell' | 'sluice' | 'heatwave' | null>(null);
+
   // Handle Dialogue Choice Selection
   function handleDialogueChoice(choice: DialogueChoice) {
     if (choice.nextDialogueId) {
       startDialogue(choice.nextDialogueId);
+    } else if (choice.action === 'play_sowing') {
+      activeDialogue = null;
+      activeMiniGame = 'sowing';
+    } else if (choice.action === 'play_tubewell') {
+      activeDialogue = null;
+      activeMiniGame = 'tubewell';
+    } else if (choice.action === 'play_sluice') {
+      activeDialogue = null;
+      activeMiniGame = 'sluice';
+    } else if (choice.action === 'play_heatwave') {
+      activeDialogue = null;
+      activeMiniGame = 'heatwave';
     } else if (choice.action === 'open_compare') {
       activeDialogue = null;
       onOpenCompare();
@@ -281,6 +299,23 @@
     } else {
       activeDialogue = null;
     }
+  }
+
+  function handleMiniGameComplete(type: 'sowing' | 'tubewell' | 'sluice' | 'heatwave') {
+    if (type === 'sowing') {
+      meters.organicMatter = Math.min(100, meters.organicMatter + 10);
+      meters.soilMoisture = Math.min(100, meters.soilMoisture + 15);
+    } else if (type === 'tubewell') {
+      meters.waterUse = Math.max(100, meters.waterUse - 50);
+      meters.income += 30;
+    } else if (type === 'sluice') {
+      meters.erosionRisk = Math.max(5, meters.erosionRisk - 15);
+      meters.organicMatter = Math.min(100, meters.organicMatter + 12);
+    } else if (type === 'heatwave') {
+      meters.soilMoisture = Math.max(25, meters.soilMoisture - 5);
+      meters.income += 40;
+    }
+    activeMiniGame = null;
   }
 
   function toggleMenu() {
@@ -297,6 +332,7 @@
     seasonName={currentSeasonName}
     onOpenMenu={toggleMenu}
     onOpenCompare={onOpenCompare}
+    onOpenRegionSelect={onOpenRegionSelect}
   />
 
   <!-- Main Game Stage -->
@@ -323,6 +359,32 @@
       </div>
     {/if}
 
+    <!-- Interactive Mini-Game Arcade Overlay -->
+    {#if activeMiniGame}
+      <div class="mini-game-stage-backdrop">
+        <div class="mini-game-modal-box">
+          <div class="mini-game-top-bar font-pixel">
+            <span>[◆ ACTIVE SIMULATION MINI-GAME]</span>
+            <button class="exit-game-btn font-pixel" onclick={() => activeMiniGame = null}>
+              [✕ CLOSE / RETURN]
+            </button>
+          </div>
+
+          <div class="mini-game-content-viewport">
+            {#if activeMiniGame === 'sowing'}
+              <SowingTimingGame onComplete={() => handleMiniGameComplete('sowing')} />
+            {:else if activeMiniGame === 'tubewell'}
+              <TubewellPumpGame onComplete={() => handleMiniGameComplete('tubewell')} />
+            {:else if activeMiniGame === 'sluice'}
+              <SluiceRunoffGame onComplete={() => handleMiniGameComplete('sluice')} />
+            {:else if activeMiniGame === 'heatwave'}
+              <HeatwaveShieldGame onComplete={() => handleMiniGameComplete('heatwave')} />
+            {/if}
+          </div>
+        </div>
+      </div>
+    {/if}
+
     <!-- GBA In-Game Pause Menu -->
     {#if isMenuOpen}
       <div class="pause-menu-backdrop" onclick={toggleMenu} role="presentation">
@@ -333,27 +395,39 @@
           onclick={(e) => e.stopPropagation()} 
           onkeydown={(e) => e.stopPropagation()}
         >
-          <div class="menu-title font-display">🌱 FARM ALMANAC MENU</div>
-          <div class="menu-options font-body">
+          <div class="menu-title font-pixel">◆ FARM ALMANAC MENU ◆</div>
+          <div class="menu-options font-pixel">
             <button class="menu-item" onclick={() => { isMenuOpen = false; onOpenCompare(); }}>
               <span class="bullet">▶</span>
-              <span>🌾 3-Crop Rotation Compare Matrix</span>
+              <span>[◆] 3-Crop Rotation Compare Matrix</span>
             </button>
             <button class="menu-item" onclick={() => { isMenuOpen = false; onOpenNasa(); }}>
               <span class="bullet">▶</span>
-              <span>🛰️ NASA Earth Science Logbook</span>
+              <span>[▲] NASA Earth Science Telemetry</span>
             </button>
             <button class="menu-item" onclick={() => { isMenuOpen = false; onOpenRegionSelect(); }}>
               <span class="bullet">▶</span>
-              <span>🗺️ Switch Region (Punjab, Iowa, Sahel, Deccan)</span>
+              <span>[▼] Travel Region (Punjab, Iowa, Sahel, Deccan)</span>
+            </button>
+            <button class="menu-item" onclick={() => { isMenuOpen = false; activeMiniGame = 'sowing'; }}>
+              <span class="bullet">▶</span>
+              <span>[◆] Mini-Game: SMAP Precision Sowing</span>
+            </button>
+            <button class="menu-item" onclick={() => { isMenuOpen = false; activeMiniGame = 'tubewell'; }}>
+              <span class="bullet">▶</span>
+              <span>[◆] Mini-Game: GRACE Tubewell Balancer</span>
+            </button>
+            <button class="menu-item" onclick={() => { isMenuOpen = false; activeMiniGame = 'sluice'; }}>
+              <span class="bullet">▶</span>
+              <span>[◆] Mini-Game: GPM Iowa Sluice Shield</span>
+            </button>
+            <button class="menu-item" onclick={() => { isMenuOpen = false; activeMiniGame = 'heatwave'; }}>
+              <span class="bullet">▶</span>
+              <span>[◆] Mini-Game: MERRA-2 Sahel Heatwave Shield</span>
             </button>
             <button class="menu-item" onclick={() => { isMenuOpen = false; onAdvanceSeason(); }}>
               <span class="bullet">▶</span>
-              <span>⏭️ Advance Season ({currentSeasonName})</span>
-            </button>
-            <button class="menu-item" onclick={() => { isMenuOpen = false; onOpenStyleguide(); }}>
-              <span class="bullet">▶</span>
-              <span>🎨 Design System Styleguide</span>
+              <span>[|||] Advance Season ({currentSeasonName})</span>
             </button>
             <button class="menu-item close" onclick={toggleMenu}>
               <span class="bullet">✕</span>
@@ -473,5 +547,59 @@
 
   .bullet {
     color: var(--soil);
+  }
+
+  /* Mini-Game Modal Overlay */
+  .mini-game-stage-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 250;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    animation: fade-in 150ms ease forwards;
+    overflow-y: auto;
+  }
+
+  .mini-game-modal-box {
+    width: 100%;
+    max-width: 780px;
+    background: #0f1412;
+    border: 3px solid #00FF66;
+    box-shadow: 0 0 24px rgba(0, 255, 102, 0.4);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mini-game-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #070a08;
+    border-bottom: 2px solid #00FF66;
+    padding: 8px 12px;
+    font-size: 9px;
+    color: #FFB703;
+  }
+
+  .exit-game-btn {
+    background: #E63946;
+    color: #fff;
+    border: 1px solid #ff9999;
+    font-size: 8px;
+    padding: 3px 6px;
+    cursor: pointer;
+  }
+
+  .exit-game-btn:hover {
+    background: #ff4d5a;
+  }
+
+  .mini-game-content-viewport {
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 8px;
   }
 </style>
