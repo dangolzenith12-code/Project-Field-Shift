@@ -6,6 +6,7 @@
   import FarmPlayScreen from './components/game/FarmPlayScreen.svelte';
   import GbaGame from './components/gba/GbaGame.svelte';
   import StoryGame from './components/story/StoryGame.svelte';
+  import HariStoryFlow from './components/story/HariStoryFlow.svelte';
   import CompareScreen from './components/compare/CompareScreen.svelte';
   import NasaDataView from './components/nasa/NasaDataView.svelte';
   import StyleguideView from './components/styleguide/StyleguideView.svelte';
@@ -162,7 +163,7 @@
   <!-- Active Main Content Scene -->
   <main class="app-main">
     {#if currentView === 'STORY_GAME'}
-      <StoryGame 
+      <HariStoryFlow 
         currentRegion={selectedRegion}
         onViewStyleguide={() => setView('STYLEGUIDE')}
       />
