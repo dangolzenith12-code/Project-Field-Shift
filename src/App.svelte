@@ -4,8 +4,10 @@
   import { sfx } from './utils/sound';
   import StartScreen from './components/intro/StartScreen.svelte';
   import PlaymodeSelectScreen from './components/intro/PlaymodeSelectScreen.svelte';
+  import OverworldSelectScreen from './components/intro/OverworldSelectScreen.svelte';
   import RegionSelectScreen from './components/region/RegionSelectScreen.svelte';
   import GbaGame from './components/gba/GbaGame.svelte';
+  import HariStoryFlow from './components/story/HariStoryFlow.svelte';
   import PunjabStoryView from './components/story/PunjabStoryView.svelte';
   import KarnatakaStoryView from './components/story/KarnatakaStoryView.svelte';
   import CompareScreen from './components/compare/CompareScreen.svelte';
@@ -17,6 +19,8 @@
   type AppView = 
     | 'START' 
     | 'PLAYMODE' 
+    | 'OVERWORLD_SELECT'
+    | 'HARI_JOURNEY'
     | 'GBA_GAME' 
     | 'REGION_SELECT' 
     | 'PUNJAB_STORY' 
@@ -157,12 +161,26 @@
     {:else if currentView === 'PLAYMODE'}
       <!-- Screen 2: Choose Playmode (Overworld vs Storymode) -->
       <PlaymodeSelectScreen 
-        onSelectOverworld={() => setView('GBA_GAME')}
+        onSelectOverworld={() => setView('OVERWORLD_SELECT')}
         onSelectStorymode={() => setView('REGION_SELECT')}
         onBack={() => setView('START')}
       />
+    {:else if currentView === 'OVERWORLD_SELECT'}
+      <!-- Screen 2B: Choose Overworld Path (Hari's Journey vs Mission Conquest) -->
+      <OverworldSelectScreen 
+        onSelectHariJourney={() => setView('HARI_JOURNEY')}
+        onSelectMissionConquest={() => setView('GBA_GAME')}
+        onBack={() => setView('PLAYMODE')}
+      />
+    {:else if currentView === 'HARI_JOURNEY'}
+      <!-- Hari's Journey: 5-Act Global Story Expedition -->
+      <HariStoryFlow 
+        currentRegion={selectedRegion}
+        onOpenOverworld={() => setView('GBA_GAME')}
+        onBackToOverworldSelect={() => setView('OVERWORLD_SELECT')}
+      />
     {:else if currentView === 'GBA_GAME'}
-      <!-- Screen 3: Full-screen GBA Game -->
+      <!-- Mission Conquest: 2D GBA Overworld with 4 Missions & Field Pack -->
       <div class="fullscreen-game-container">
         <GbaGame 
           currentRegion={selectedRegion}
@@ -172,34 +190,34 @@
           {weatherCondition}
           onOpenCompare={() => setView('STRATEGY_COMPARE')}
           onOpenNasa={() => setView('NASA_DATA')}
-          onOpenRegionSelect={() => setView('REGION_SELECT')}
-          onOpenStory={() => setView(selectedRegion.id === 'karnataka' ? 'KARNATAKA_STORY' : 'PUNJAB_STORY')}
-          onReturnToStart={() => setView('START')}
+          onOpenRegionSelect={() => setView('OVERWORLD_SELECT')}
+          onOpenStory={() => setView('HARI_JOURNEY')}
+          onReturnToStart={() => setView('OVERWORLD_SELECT')}
           onOpenStyleguide={() => setView('STYLEGUIDE')}
           onOpenJournal={() => setView('JOURNAL')}
           onAdvanceSeason={advanceSeason}
         />
       </div>
     {:else if currentView === 'REGION_SELECT'}
-      <!-- Screen 4: Choose Region (Punjab vs Karnataka) -->
+      <!-- STORYMODE: Choose Region (Karnataka vs Punjab) -->
       <RegionSelectScreen 
         onSelectRegion={handleSelectRegion}
         onBack={() => setView('PLAYMODE')}
       />
     {:else if currentView === 'PUNJAB_STORY'}
-      <!-- Screen 5A: Punjab Story and AI-powered Farming Experience (DOCX Verbatim) -->
+      <!-- Punjab Story (Updated Four Generations, One Farm with Graphical Workbenches) -->
       <PunjabStoryView 
         onBackToRegions={() => setView('REGION_SELECT')}
-        onOpenOverworld={() => setView('GBA_GAME')}
+        onOpenOverworld={() => setView('OVERWORLD_SELECT')}
         onOpenJournal={() => setView('JOURNAL')}
         onOpenStrategies={() => setView('STRATEGY_COMPARE')}
         onOpenNasa={() => setView('NASA_DATA')}
       />
     {:else if currentView === 'KARNATAKA_STORY'}
-      <!-- Screen 5B: Karnataka Generational Story & Dryland Agroecology Minigames -->
+      <!-- Karnataka Story (Updated Deccan Agroecology with Kasuti Motifs) -->
       <KarnatakaStoryView 
         onBackToRegions={() => setView('REGION_SELECT')}
-        onOpenOverworld={() => setView('GBA_GAME')}
+        onOpenOverworld={() => setView('OVERWORLD_SELECT')}
         onOpenJournal={() => setView('JOURNAL')}
         onOpenStrategies={() => setView('STRATEGY_COMPARE')}
         onOpenNasa={() => setView('NASA_DATA')}

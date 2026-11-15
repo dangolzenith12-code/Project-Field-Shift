@@ -60,7 +60,15 @@ describe('GBA Overworld Dialogue Graph & World Integrity Suite', () => {
       'inspect_well', 
       'calibrate_pump',
       'boost_som',
-      'close'
+      'close',
+      'play_amma_match',
+      'play_banyan_blank',
+      'play_america_phone',
+      'play_kenya_video',
+      'play_sowing',
+      'play_tubewell',
+      'play_sluice',
+      'play_heatwave'
     ]);
 
     for (const [nodeId, node] of Object.entries(DIALOGUE_NODES)) {

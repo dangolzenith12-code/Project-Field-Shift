@@ -51,6 +51,31 @@ export interface CollisionBox {
   height: number;
 }
 
+export interface FloatingBox {
+  id: string;
+  name: string;
+  tag: string;
+  x: number;
+  y: number;
+  baseElevation: number; // Pixels off the ground
+  floatSpeed: number;
+  floatAmplitude: number;
+  phaseOffset: number;
+  themeColor: string;
+  glowColor: string;
+  satelliteMission: 'SMAP' | 'GRACE' | 'POWER' | 'SWOT' | 'TERRA';
+  telemetryMetric: string;
+  telemetryValue: string;
+  telemetryUnit: string;
+  description: string;
+  buffReward: {
+    type: 'soil' | 'water' | 'income' | 'organic';
+    amount: number;
+    label: string;
+  };
+  icon: string;
+}
+
 export type PortraitId = 'amma_smile' | 'amma_worry' | 'amma_wise' | 'agronomist' | 'satellite' | 'grandchild';
 
 export interface DialogueChoice {

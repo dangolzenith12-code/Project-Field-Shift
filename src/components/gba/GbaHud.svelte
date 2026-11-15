@@ -13,6 +13,7 @@
     onCycleTool?: () => void;
     onOpenMenu: () => void;
     onOpenCompare: () => void;
+    onOpenBackpack?: () => void;
   }
 
   let { 
@@ -25,7 +26,8 @@
     onToggleTimeOfDay,
     onCycleTool,
     onOpenMenu, 
-    onOpenCompare 
+    onOpenCompare,
+    onOpenBackpack
   }: Props = $props();
 
   const toolLabels: Record<EquippedTool, string> = {
@@ -111,11 +113,21 @@
   </div>
 
   <div class="hud-right">
-    <button class="hud-btn font-display" onclick={onOpenCompare} title="Compare 3 Rotations">
+    {#if onOpenBackpack}
+      <button type="button" class="hud-btn backpack-btn font-display" onclick={onOpenBackpack} title="Open Farmer's Field Pack (Strategies, Tools, Journal, NASA Data)">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M4 10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-9z" fill="var(--journal-gold, #E5A93C)" stroke="var(--journal-ink, #1B2B1F)" />
+          <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" stroke="var(--journal-ink, #1B2B1F)" />
+          <rect x="7" y="11" width="10" height="6" rx="1.5" fill="#FAF6ED" stroke="var(--journal-ink, #1B2B1F)" />
+        </svg>
+        <span>Backpack</span>
+      </button>
+    {/if}
+    <button type="button" class="hud-btn font-display" onclick={onOpenCompare} title="Compare 3 Rotations">
       Compare
     </button>
-    <button class="hud-btn menu-btn font-data" onclick={onOpenMenu} title="GBA Pause Menu">
-      START ☰
+    <button type="button" class="hud-btn menu-btn font-data" onclick={onOpenMenu} title="GBA Pause Menu">
+      START
     </button>
   </div>
 </div>

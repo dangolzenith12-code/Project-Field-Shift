@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
+  import confetti from 'canvas-confetti';
   import type { PlayerState, InteractiveEntity, DialogueNode, DialogueChoice, EquippedTool, TimeOfDay } from './types';
   import type { FarmMeters, EraInfo, RegionInfo } from '../../types/game';
   import { 
@@ -15,6 +16,15 @@
   import GbaDialogBox from './GbaDialogBox.svelte';
   import GbaHud from './GbaHud.svelte';
   import GbaControls from './GbaControls.svelte';
+  import BackpackModal from '../common/BackpackModal.svelte';
+  import AmmaMatchMission from '../game/AmmaMatchMission.svelte';
+  import BanyanBlankMission from '../game/BanyanBlankMission.svelte';
+  import AmericaPhoneMission from '../game/AmericaPhoneMission.svelte';
+  import KenyaVideoMission from '../game/KenyaVideoMission.svelte';
+  import SowingTimingGame from '../game/SowingTimingGame.svelte';
+  import TubewellPumpGame from '../game/TubewellPumpGame.svelte';
+  import SluiceRunoffGame from '../game/SluiceRunoffGame.svelte';
+  import HeatwaveShieldGame from '../game/HeatwaveShieldGame.svelte';
 
   interface Props {
     currentRegion: RegionInfo;
@@ -69,6 +79,16 @@
 
   // In-Game GBA Pause Menu State
   let isMenuOpen = $state(false);
+
+  // In-Game Backpack Modal State
+  let isBackpackOpen = $state(false);
+
+  // 4 Overworld Mini-Missions
+  let activeMission = $state<'amma_match' | 'banyan_blank' | 'america_phone' | 'kenya_video' | null>(null);
+  let completedMissions = $state<Set<string>>(new Set());
+
+  // Arcade Mini-Games
+  let activeMiniGame = $state<'sowing' | 'tubewell' | 'sluice' | 'heatwave' | null>(null);
 
   // Equipped Tool & Atmosphere Systems
   let equippedTool = $state<EquippedTool>('seeds');
@@ -189,7 +209,7 @@
 
   // Update Player Movement
   function updateMovement() {
-    if (activeDialogue || isMenuOpen || isProbeModalOpen || isTubewellModalOpen) {
+    if (activeDialogue || isMenuOpen || isProbeModalOpen || isTubewellModalOpen || isBackpackOpen || activeMission || activeMiniGame) {
       player.isMoving = false;
       return;
     }
@@ -300,12 +320,29 @@
       sfx.playSelect();
     }
 
+    // Backpack Inventory Key (I or B)
+    if (e.code === 'KeyI' || e.code === 'KeyB') {
+      if (!activeDialogue && !activeMission && !activeMiniGame) {
+        e.preventDefault();
+        isBackpackOpen = !isBackpackOpen;
+        sfx.playSelect();
+      }
+    }
+
     // Menu Key (Escape)
     if (e.code === 'Escape') {
-      if (isProbeModalOpen) {
+      if (activeMission) {
+        activeMission = null;
+      } else if (activeMiniGame) {
+        activeMiniGame = null;
+      } else if (isBackpackOpen) {
+        isBackpackOpen = false;
+      } else if (isProbeModalOpen) {
         isProbeModalOpen = false;
       } else if (isTubewellModalOpen) {
         isTubewellModalOpen = false;
+      } else if (activeDialogue) {
+        activeDialogue = null;
       } else {
         toggleMenu();
       }
@@ -391,6 +428,30 @@
   function handleDialogueChoice(choice: DialogueChoice) {
     if (choice.nextDialogueId) {
       startDialogue(choice.nextDialogueId);
+    } else if (choice.action === 'play_amma_match') {
+      activeDialogue = null;
+      activeMission = 'amma_match';
+    } else if (choice.action === 'play_banyan_blank') {
+      activeDialogue = null;
+      activeMission = 'banyan_blank';
+    } else if (choice.action === 'play_america_phone') {
+      activeDialogue = null;
+      activeMission = 'america_phone';
+    } else if (choice.action === 'play_kenya_video') {
+      activeDialogue = null;
+      activeMission = 'kenya_video';
+    } else if (choice.action === 'play_sowing') {
+      activeDialogue = null;
+      activeMiniGame = 'sowing';
+    } else if (choice.action === 'play_tubewell') {
+      activeDialogue = null;
+      activeMiniGame = 'tubewell';
+    } else if (choice.action === 'play_sluice') {
+      activeDialogue = null;
+      activeMiniGame = 'sluice';
+    } else if (choice.action === 'play_heatwave') {
+      activeDialogue = null;
+      activeMiniGame = 'heatwave';
     } else if (choice.action === 'open_compare') {
       activeDialogue = null;
       onOpenCompare();
@@ -412,6 +473,35 @@
     } else {
       activeDialogue = null;
     }
+  }
+
+  // Complete one of the 4 Overworld Mini-Missions
+  function handleMissionComplete(missionId: 'amma_match' | 'banyan_blank' | 'america_phone' | 'kenya_video') {
+    completedMissions.add(missionId);
+    if (missionId === 'amma_match') {
+      meters.organicMatter = Math.min(100, meters.organicMatter + 20);
+      meters.soilMoisture = Math.min(100, meters.soilMoisture + 15);
+      meters.income += 50;
+      showToast('Mission 1 Conquered: Heirloom Seeds Matched! (+20% SOM, +50 Coins)');
+    } else if (missionId === 'banyan_blank') {
+      meters.organicMatter = Math.min(100, meters.organicMatter + 25);
+      meters.waterUse = Math.max(80, meters.waterUse - 45);
+      meters.income += 40;
+      showToast('Mission 2 Conquered: 3-Crop Rotation Verified! (+25% SOM, −45mm Water)');
+    } else if (missionId === 'america_phone') {
+      meters.erosionRisk = Math.max(5, meters.erosionRisk - 20);
+      meters.income += 30;
+      showToast('Mission 3 Conquered: Iowa Swale Shield Deployed! (−20% Erosion Risk)');
+    } else if (missionId === 'kenya_video') {
+      meters.soilMoisture = Math.min(100, meters.soilMoisture + 25);
+      meters.organicMatter = Math.min(100, meters.organicMatter + 20);
+      meters.income += 40;
+      showToast('Mission 4 Conquered: Zaï Pit Bio-Shield Active! (+25% Moisture, +40 Coins)');
+    }
+    activeMission = null;
+    try {
+      confetti({ particleCount: 70, spread: 80, origin: { y: 0.6 } });
+    } catch {}
   }
 
   function toggleMenu() {
@@ -447,6 +537,7 @@
     onCycleTool={cycleTool}
     onOpenMenu={toggleMenu}
     onOpenCompare={onOpenCompare}
+    onOpenBackpack={() => isBackpackOpen = true}
   />
 
   <!-- Main Game Stage -->
@@ -681,6 +772,88 @@
           </div>
         </div>
       </div>
+    {/if}
+
+    <!-- In-Game Backpack Modal (Never resets game state) -->
+    <BackpackModal 
+      isOpen={isBackpackOpen}
+      regionId={currentRegion.id}
+      {meters}
+      {equippedTool}
+      {timeOfDay}
+      onClose={() => isBackpackOpen = false}
+      onEquipTool={(tool) => { equippedTool = tool; showToast(`Equipped: ${tool}`); }}
+      onToggleTimeOfDay={cycleTimeOfDay}
+      onSelectStrategy={(strat) => {
+        meters.soilMoisture = Math.min(100, Math.max(10, meters.soilMoisture - strat.metrics.waterStressDelta * 0.4));
+        meters.income = Math.max(20, Math.round(meters.income * (1 + strat.metrics.incomeReturn / 100)));
+        meters.organicMatter = Math.min(100, Math.max(15, meters.organicMatter + strat.metrics.soilCarbonDelta * 0.5));
+        meters.erosionRisk = Math.max(10, Math.min(90, meters.erosionRisk - 15));
+        showToast(`Adopted Strategy: ${strat.title}!`);
+      }}
+      onReturnToSelect={onOpenRegionSelect}
+    />
+
+    <!-- Overworld 4 Mini-Missions -->
+    {#if activeMission === 'amma_match'}
+      <AmmaMatchMission 
+        onComplete={() => handleMissionComplete('amma_match')}
+        onClose={() => activeMission = null}
+      />
+    {:else if activeMission === 'banyan_blank'}
+      <BanyanBlankMission 
+        onComplete={() => handleMissionComplete('banyan_blank')}
+        onClose={() => activeMission = null}
+      />
+    {:else if activeMission === 'america_phone'}
+      <AmericaPhoneMission 
+        onComplete={() => handleMissionComplete('america_phone')}
+        onClose={() => activeMission = null}
+      />
+    {:else if activeMission === 'kenya_video'}
+      <KenyaVideoMission 
+        onComplete={() => handleMissionComplete('kenya_video')}
+        onClose={() => activeMission = null}
+      />
+    {/if}
+
+    <!-- Arcade Mini-Games -->
+    {#if activeMiniGame === 'sowing'}
+      <SowingTimingGame 
+        onComplete={() => {
+          meters.soilMoisture = Math.min(100, meters.soilMoisture + 15);
+          meters.income += 30;
+          showToast('Precision Sowing Complete! Soil Moisture +15%');
+          activeMiniGame = null;
+        }}
+      />
+    {:else if activeMiniGame === 'tubewell'}
+      <TubewellPumpGame 
+        onComplete={() => {
+          meters.waterUse = Math.max(80, meters.waterUse - 40);
+          meters.income += 25;
+          showToast('Tubewell Balanced! Water Drawdown Stabilized');
+          activeMiniGame = null;
+        }}
+      />
+    {:else if activeMiniGame === 'sluice'}
+      <SluiceRunoffGame 
+        onComplete={() => {
+          meters.erosionRisk = Math.max(5, meters.erosionRisk - 18);
+          meters.income += 25;
+          showToast('Sluice Runoff Regulated! Erosion Risk −18%');
+          activeMiniGame = null;
+        }}
+      />
+    {:else if activeMiniGame === 'heatwave'}
+      <HeatwaveShieldGame 
+        onComplete={() => {
+          meters.organicMatter = Math.min(100, meters.organicMatter + 18);
+          meters.soilMoisture = Math.min(100, meters.soilMoisture + 12);
+          showToast('Heatwave Bio-Shield Active! Soil Protected');
+          activeMiniGame = null;
+        }}
+      />
     {/if}
   </div>
 
