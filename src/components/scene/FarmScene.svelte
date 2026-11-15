@@ -295,11 +295,11 @@
     <span class="era-year">ERA {era.year}</span>
     <span class="weather-indicator font-data">
       {#if weatherCondition === 'rain'}
-        🌧️ MONSOON ACTIVE
+        MONSOON ACTIVE
       {:else if isDrought}
-        ☀️ HEAT ANOMALY (+{era.tempAnomaly}°C)
+        HEAT ANOMALY (+{era.tempAnomaly}°C)
       {:else}
-        🌾 HEALTHY CANOPY
+        HEALTHY CANOPY
       {/if}
     </span>
   </div>

@@ -49,13 +49,13 @@
   <!-- Top Navigation & Switcher Bar -->
   <div class="top-nav-bar">
     <div class="nav-left">
-      <span class="logo font-display">🌾 Field Shift</span>
+      <span class="logo font-display">Field Shift</span>
       <span class="region-chip font-data">Region: {currentRegion.name}</span>
     </div>
 
     <div class="nav-right">
-      <Button variant="secondary" size="sm" onclick={onChangeRegion}>🔄 Switch Region</Button>
-      <Button variant="secondary" size="sm" onclick={onViewNasaDocs}>🛰️ NASA Evidence</Button>
+      <Button variant="secondary" size="sm" onclick={onChangeRegion}>Switch Region</Button>
+      <Button variant="secondary" size="sm" onclick={onViewNasaDocs}>NASA Evidence</Button>
     </div>
   </div>
 
@@ -104,7 +104,7 @@
           onclick={() => onTriggerEvent('rain')}
           title="Simulate sudden monsoon cloudburst"
         >
-          🌧️ Monsoon Rain
+          Monsoon Rain
         </button>
         <button 
           type="button" 
@@ -112,7 +112,7 @@
           onclick={() => onTriggerEvent('dry')}
           title="Simulate dry summer heat spell"
         >
-          ☀️ Heat Spell
+          Heat Spell
         </button>
         <button 
           type="button" 
@@ -120,16 +120,16 @@
           onclick={() => onTriggerEvent('harvest')}
           title="Celebrate crop harvest"
         >
-          ✨ Harvest Burst
+          Harvest Burst
         </button>
       </div>
 
       <div class="main-actions-row">
         <Button variant="secondary" size="md" onclick={onAdvanceSeason}>
-          ⏭️ Advance Next Season
+          Advance Next Season
         </Button>
         <Button variant="primary" size="lg" onclick={onOpenCompare}>
-          📊 Compare 3 Crop Rotations →
+          Compare 3 Crop Rotations →
         </Button>
       </div>
     </div>

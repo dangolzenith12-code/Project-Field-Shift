@@ -6,3 +6,6 @@ dist/
 .env.*
 .cache/
 scripts/.cache/
+karnataka-assets/
+karnataka-assets.zip
+
