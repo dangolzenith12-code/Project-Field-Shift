@@ -106,46 +106,46 @@
 </script>
 
 <div class="app-root">
-  <!-- Persistent Vintage Top Bar -->
+  <!-- Persistent Retro Arcade Console Top Bar -->
   <header class="app-header">
     <div class="header-inner">
-      <button class="brand-link" onclick={() => setView('INTRO')}>
-        <span class="seed-icon">🌱</span>
-        <span class="brand-title font-display">Field Shift</span>
-        <span class="brand-sub font-data">Amma's Field</span>
+      <button class="brand-link" onclick={() => setView('STORY_GAME')}>
+        <span class="seed-symbol font-pixel">◆</span>
+        <span class="brand-title font-pixel">FIELD SHIFT</span>
+        <span class="brand-sub font-data">AMMA'S FIELD</span>
       </button>
 
-      <!-- Navigation Tabs -->
+      <!-- Navigation Tabs (Retro Arcade Buttons with NO emojis) -->
       <nav class="nav-links">
         <button 
           class="nav-tab {currentView === 'STORY_GAME' ? 'active' : ''}" 
           onclick={() => setView('STORY_GAME')}
         >
-          🎮 Hari's Story Game
+          [◆ HARI'S STORY]
         </button>
         <button 
           class="nav-tab {currentView === 'SEASON_PLAY' ? 'active' : ''}" 
           onclick={() => setView('SEASON_PLAY')}
         >
-          📜 Freeplay Almanac
+          [▲ OVERWORLD RPG]
         </button>
         <button 
           class="nav-tab {currentView === 'STRATEGY_COMPARE' ? 'active' : ''}" 
           onclick={() => setView('STRATEGY_COMPARE')}
         >
-          📊 Compare (3 Rotations)
+          [▼ 3-STRATEGY MATRIX]
         </button>
         <button 
           class="nav-tab {currentView === 'NASA_DATA' ? 'active' : ''}" 
           onclick={() => setView('NASA_DATA')}
         >
-          🛰️ NASA Data
+          [★ NASA SATELLITE HUB]
         </button>
         <button 
           class="nav-tab {currentView === 'STYLEGUIDE' ? 'active' : ''}" 
           onclick={() => setView('STYLEGUIDE')}
         >
-          🎨 /styleguide
+          [? STYLEGUIDE]
         </button>
       </nav>
 
@@ -155,7 +155,7 @@
         onclick={() => isMuted = !isMuted}
         title={isMuted ? "Sound Muted" : "Sound Enabled"}
       >
-        {isMuted ? "🔇 Muted" : "🔊 Audio ON"}
+        {isMuted ? "[♪ MUTED]" : "[♪ AUDIO ON]"}
       </button>
     </div>
   </header>
@@ -166,6 +166,7 @@
       <HariStoryFlow 
         currentRegion={selectedRegion}
         onViewStyleguide={() => setView('STYLEGUIDE')}
+        onOpenOverworld={() => setView('SEASON_PLAY')}
       />
     {:else if currentView === 'INTRO'}
       <IntroScreen 
@@ -224,17 +225,18 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background-color: var(--paper);
+    background-color: #0E140E;
+    color: #FFFFFF;
   }
 
   .app-header {
-    background-color: var(--paper);
-    border-bottom: var(--outline);
-    padding: var(--space-2) var(--space-3);
+    background-color: #080D08;
+    border-bottom: 3px solid #00FF66;
+    padding: 8px 16px;
     position: sticky;
     top: 0;
     z-index: 1000;
-    box-shadow: 0 2px 0 var(--ink);
+    box-shadow: 0 4px 12px rgba(0, 255, 102, 0.2);
   }
 
   .header-inner {
@@ -243,7 +245,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: var(--space-2);
+    gap: 12px;
     flex-wrap: wrap;
   }
 
@@ -256,79 +258,89 @@
     cursor: pointer;
     padding: 0;
     text-align: left;
+    color: #00FF66;
   }
 
-  .seed-icon {
-    font-size: 1.5rem;
+  .seed-symbol {
+    font-size: 1.1rem;
+    color: #FFB703;
   }
 
   .brand-title {
-    font-size: 1.35rem;
-    color: var(--ink);
+    font-size: 0.95rem;
+    color: #00FF66;
+    letter-spacing: 1px;
     line-height: 1;
   }
 
   .brand-sub {
-    font-size: 0.72rem;
-    color: var(--soil);
+    font-size: 0.65rem;
+    color: #FFB703;
     padding: 2px 6px;
-    background-color: color-mix(in srgb, var(--turmeric) 35%, var(--paper));
-    border: 1px solid var(--ink);
-    border-radius: 4px;
+    background-color: #1A261A;
+    border: 1px solid #FFB703;
+    border-radius: 2px;
+    letter-spacing: 0.5px;
   }
 
   .nav-links {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     flex-wrap: wrap;
   }
 
   .nav-tab {
-    font-family: var(--font-body);
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--ink);
-    background-color: var(--paper);
-    border: 2px solid var(--ink);
-    border-radius: var(--radius-pill);
-    padding: 4px 12px;
+    font-family: var(--font-pixel);
+    font-size: 0.68rem;
+    color: #A0C8AA;
+    background-color: #141F14;
+    border: 2px solid #2E5A35;
+    padding: 6px 10px;
     cursor: pointer;
-    box-shadow: 0 2px 0 var(--ink);
-    transition: transform var(--fast) var(--spring), background-color var(--fast) ease;
+    box-shadow: 0 3px 0 #000;
+    transition: transform var(--fast) var(--spring), background-color var(--fast) ease, color var(--fast) ease;
   }
 
   .nav-tab:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 3px 0 var(--ink);
+    color: #00FF66;
+    border-color: #00FF66;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 0 #000;
   }
 
   .nav-tab:active {
     transform: translateY(2px);
-    box-shadow: 0 1px 0 var(--ink);
+    box-shadow: 0 1px 0 #000;
   }
 
   .nav-tab.active {
-    background-color: var(--turmeric);
-    box-shadow: 0 3px 0 var(--ink);
+    background-color: #00FF66;
+    color: #000000;
+    border-color: #000000;
+    font-weight: bold;
+    box-shadow: 0 3px 0 #000, 0 0 10px rgba(0, 255, 102, 0.4);
   }
 
   .sound-btn {
-    font-size: 0.75rem;
-    background-color: var(--paper);
-    border: 1.5px solid var(--ink);
-    border-radius: var(--radius-sm);
-    padding: 4px 8px;
+    font-family: var(--font-pixel);
+    font-size: 0.65rem;
+    background-color: #1A281A;
+    color: #FFB703;
+    border: 2px solid #FFB703;
+    padding: 6px 10px;
     cursor: pointer;
-    box-shadow: 0 1px 0 var(--ink);
+    box-shadow: 0 3px 0 #000;
   }
 
   .sound-btn:hover {
-    background-color: color-mix(in srgb, var(--ink) 8%, var(--paper));
+    background-color: #FFB703;
+    color: #000000;
   }
 
   .app-main {
     flex-grow: 1;
     width: 100%;
+    background-color: #0E140E;
   }
 </style>

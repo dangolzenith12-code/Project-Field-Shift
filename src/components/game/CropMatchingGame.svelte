@@ -1,22 +1,6 @@
 <script lang="ts">
-  interface SoilOption {
-    id: string;
-    name: string;
-    region: string;
-    texture: string;
-    smapWetness: string;
-    waterDeficit: string;
-    matchedCropId: string;
-  }
-
-  interface CropOption {
-    id: string;
-    name: string;
-    category: string;
-    rooting: string;
-    waterReq: string;
-    trait: string;
-  }
+  import { onMount } from 'svelte';
+  import { sfx } from '../../utils/sound';
 
   interface Props {
     onComplete: () => void;
@@ -24,528 +8,692 @@
 
   let { onComplete }: Props = $props();
 
-  const SOILS: SoilOption[] = [
+  interface SituationCard {
+    id: string;
+    title: string;
+    sub: string;
+    iconType: 'co2_l1' | 'co2_l2' | 'no_co2';
+    matchedCropId: string;
+    explanation: string;
+  }
+
+  interface CropCard {
+    id: string;
+    name: string;
+    category: string;
+    iconType: 'corn' | 'pulse' | 'rice';
+    yieldImpact: string;
+  }
+
+  const SITUATIONS: SituationCard[] = [
     {
-      id: 'soil_punjab',
-      name: 'Deep Alluvial Silt Loam',
-      region: 'Punjab Basin',
-      texture: 'Fine loam (Clay 18%, Sand 42%)',
-      smapWetness: '0.55 - 0.70 GWETROOT',
-      waterDeficit: 'Requires high surface irrigation',
-      matchedCropId: 'crop_rice'
+      id: 'sit_1',
+      title: 'CO2, Level 1 Adaptation',
+      sub: 'Punjab Basin (High Moisture)',
+      iconType: 'co2_l1',
+      matchedCropId: 'crop_1',
+      explanation: 'Level 1 adaptation with irrigation mitigates heat stress, sustaining cereal yields.'
     },
     {
-      id: 'soil_deccan',
-      name: 'Shallow Red Sandy Clay',
-      region: 'Deccan Plateau',
-      texture: 'Coarse red gravel (Low moisture retention)',
-      smapWetness: '0.25 - 0.40 GWETROOT',
-      waterDeficit: 'Prone to 20-day dry spells',
-      matchedCropId: 'crop_millet'
+      id: 'sit_2',
+      title: 'CO2, Level 2 Adaptation',
+      sub: 'Deccan Plateau (Water Stress)',
+      iconType: 'co2_l2',
+      matchedCropId: 'crop_2',
+      explanation: 'Level 2 regenerative pulse integration preserves soil moisture and boosts protein feed by +11%.'
     },
     {
-      id: 'soil_sahel',
-      name: 'Crusted Arid Sandy Soil',
-      region: 'Sahel / Semi-Arid Fringe',
-      texture: 'Arenosol coarse sand (<0.3% Organic Carbon)',
-      smapWetness: '0.15 - 0.28 GWETROOT',
-      waterDeficit: 'Severe evaporation stress',
-      matchedCropId: 'crop_legume'
+      id: 'sit_3',
+      title: 'No CO2, No Adaptation',
+      sub: 'Sahel Fringe (Degraded Sand)',
+      iconType: 'no_co2',
+      matchedCropId: 'crop_3',
+      explanation: 'Without adaptation, wheat drops by -51% and coarse grains drop by -19%.'
     }
   ];
 
-  const CROPS: CropOption[] = [
+  const CROPS: CropCard[] = [
     {
-      id: 'crop_rice',
-      name: 'Basmati Rice & Wheat',
+      id: 'crop_1',
+      name: 'Corn & Wheat',
       category: 'Cereal Grain',
-      rooting: 'Shallow surface roots (20-30 cm)',
-      waterReq: '1100 - 1300 mm/season',
-      trait: 'Best suited for deep alluvial soil with high water availability'
+      iconType: 'corn',
+      yieldImpact: 'Protected by Level 1 moisture management'
     },
     {
-      id: 'crop_millet',
-      name: 'Finger Millet (Ragi)',
-      category: 'Nutri-Cereal',
-      rooting: 'Deep taproot system (>90 cm)',
-      waterReq: '350 - 450 mm/season',
-      trait: 'Penetrates hard subsoil compaction in drought-prone red gravel'
+      id: 'crop_2',
+      name: 'Protein Feed',
+      category: 'Chickpea & Legumes',
+      iconType: 'pulse',
+      yieldImpact: '+11% yield gain under Level 2 adaptation'
     },
     {
-      id: 'crop_legume',
-      name: 'Desi Chickpea & Cowpea',
-      category: 'Nitrogen-Fixing Pulse',
-      rooting: 'Deep branching roots with Rhizobia',
-      waterReq: '250 - 350 mm/season',
-      trait: 'Fixes atmospheric nitrogen and rebuilds organic humus in sandy soil'
+      id: 'crop_3',
+      name: 'Rice & Grains',
+      category: 'Coarse Grains',
+      iconType: 'rice',
+      yieldImpact: '-36% collapse under zero adaptation'
     }
   ];
 
-  // User selections
-  let selectedSoilId = $state<string | null>(null);
+  let selectedSitId = $state<string | null>(null);
   let selectedCropId = $state<string | null>(null);
-  let matches = $state<Record<string, string>>({}); // soilId -> cropId
-  let feedbackMessage = $state<string | null>(null);
+  let matches = $state<Record<string, string>>({}); // sitId -> cropId
+  let statusBanner = $state<string | null>(null);
 
-  // Check if all matched
-  const allMatched = $derived(Object.keys(matches).length === SOILS.length);
+  const allMatched = $derived(Object.keys(matches).length === SITUATIONS.length);
 
-  function handleSelectSoil(soilId: string) {
-    selectedSoilId = soilId;
+  // Card element references for drawing lines
+  let sitRefs: Record<string, HTMLElement> = {};
+  let cropRefs: Record<string, HTMLElement> = {};
+  let gridContainer: HTMLElement | null = $state(null);
+
+  let lines = $state<Array<{ x1: number; y1: number; x2: number; y2: number; sitId: string }>>([]);
+
+  function updateLines() {
+    if (!gridContainer) return;
+    const containerRect = gridContainer.getBoundingClientRect();
+    const newLines: Array<{ x1: number; y1: number; x2: number; y2: number; sitId: string }> = [];
+
+    for (const [sitId, cropId] of Object.entries(matches)) {
+      const sitEl = sitRefs[sitId];
+      const cropEl = cropRefs[cropId];
+      if (sitEl && cropEl) {
+        const sitRect = sitEl.getBoundingClientRect();
+        const cropRect = cropEl.getBoundingClientRect();
+
+        const x1 = sitRect.left + sitRect.width / 2 - containerRect.left;
+        const y1 = sitRect.bottom - containerRect.top;
+        const x2 = cropRect.left + cropRect.width / 2 - containerRect.left;
+        const y2 = cropRect.top - containerRect.top;
+
+        newLines.push({ x1, y1, x2, y2, sitId });
+      }
+    }
+    lines = newLines;
+  }
+
+  function handleSelectSit(sitId: string) {
+    if (matches[sitId]) return;
+    sfx.playSelect();
+    selectedSitId = sitId;
     checkMatch();
   }
 
   function handleSelectCrop(cropId: string) {
+    if (Object.values(matches).includes(cropId)) return;
+    sfx.playSelect();
     selectedCropId = cropId;
     checkMatch();
   }
 
   function checkMatch() {
-    if (selectedSoilId && selectedCropId) {
-      const soil = SOILS.find(s => s.id === selectedSoilId);
-      if (soil && soil.matchedCropId === selectedCropId) {
-        matches[selectedSoilId] = selectedCropId;
+    if (selectedSitId && selectedCropId) {
+      const sit = SITUATIONS.find(s => s.id === selectedSitId);
+      if (sit && sit.matchedCropId === selectedCropId) {
+        matches[selectedSitId] = selectedCropId;
+        sfx.playSuccess();
         const crop = CROPS.find(c => c.id === selectedCropId);
-        feedbackMessage = `[CORRECT MATCH] ${soil.name} successfully paired with ${crop?.name}!`;
+        statusBanner = `[PAIR MATCHED] ${sit.title} harmonized with ${crop?.name}!`;
+        setTimeout(updateLines, 50);
       } else {
-        feedbackMessage = `[MISMATCH] Check the NASA SMAP and water requirement values in the reference table.`;
+        sfx.playAlert();
+        statusBanner = `[MISMATCH] Check the Potential Impacts Reference Table on the right.`;
       }
-      selectedSoilId = null;
+      selectedSitId = null;
       selectedCropId = null;
     }
   }
 
-  function resetMatching() {
+  function resetGame() {
     matches = {};
-    selectedSoilId = null;
+    selectedSitId = null;
     selectedCropId = null;
-    feedbackMessage = null;
+    statusBanner = null;
+    lines = [];
   }
+
+  onMount(() => {
+    window.addEventListener('resize', updateLines);
+    return () => window.removeEventListener('resize', updateLines);
+  });
 </script>
 
-<div class="matching-game-wrapper">
-  <!-- Top Green Arcade Banner -->
-  <div class="top-arcade-banner">
-    <div class="banner-corn-left" aria-hidden="true">◆ ◆ ◆</div>
-    <h2 class="banner-title font-display">SOIL & CROP COMPATIBILITY CHALLENGE</h2>
-    <div class="banner-corn-right" aria-hidden="true">◆ ◆ ◆</div>
+<div class="matching-screen-layout">
+  <!-- Top Title & Subtitle (Image 2 style) -->
+  <div class="header-section">
+    <button type="button" class="back-link font-pixel" onclick={resetGame}>
+      - RESET
+    </button>
+    <div class="title-stack">
+      <h1 class="main-title font-pixel">Water Management Matching Game</h1>
+      <p class="sub-instruction font-retro">
+        Match the images: Match first row situations with their best fitted crop using the table!
+      </p>
+    </div>
   </div>
 
-  <div class="challenge-subtitle font-body">
-    Consult the NASA Earth Science & SoilGrids benchmarks on the right to match each soil condition with its ideal crop!
-  </div>
-
-  {#if feedbackMessage}
-    <div class="feedback-alert font-data" class:success={feedbackMessage.includes('CORRECT')}>
-      {feedbackMessage}
+  {#if allMatched}
+    <div class="completion-banner font-pixel">
+      Congratulations! You completed the matching game!
+    </div>
+  {:else if statusBanner}
+    <div class="status-alert font-retro">
+      {statusBanner}
     </div>
   {/if}
 
-  <!-- Main Split Layout (Matching Board on Left, NASA Table on Right) -->
-  <div class="matching-split-grid">
-    <!-- Left Column: Interactive Matching Board -->
-    <div class="matching-board-panel">
-      <div class="panel-tag font-data">STEP 1: SELECT A SOIL CONDITION</div>
-      <div class="options-list">
-        {#each SOILS as soil}
-          {@const isMatched = !!matches[soil.id]}
-          {@const isSelected = selectedSoilId === soil.id}
+  <!-- Split Screen: Left 3x2 Grid with connecting lines, Right Reference Table -->
+  <div class="matching-stage-row">
+    <!-- Left Column: Interactive 2-Row Matching Grid -->
+    <div class="matching-grid-wrapper" bind:this={gridContainer}>
+      <!-- Dynamic SVG Connecting Lines Layer -->
+      <svg class="connecting-lines-svg">
+        <defs>
+          <linearGradient id="laserGreen" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#00FF66" />
+            <stop offset="100%" stop-color="#38B000" />
+          </linearGradient>
+        </defs>
+        {#each lines as line}
+          <line 
+            x1={line.x1} 
+            y1={line.y1} 
+            x2={line.x2} 
+            y2={line.y2} 
+            stroke="url(#laserGreen)" 
+            stroke-width="5" 
+            stroke-linecap="round"
+          />
+          <circle cx={line.x1} cy={line.y1} r="4" fill="#00FF66" />
+          <circle cx={line.x2} cy={line.y2} r="4" fill="#38B000" />
+        {/each}
+      </svg>
+
+      <!-- Row 1: Situations -->
+      <div class="grid-row top-row">
+        {#each SITUATIONS as sit}
+          {@const isMatched = !!matches[sit.id]}
+          {@const isSelected = selectedSitId === sit.id}
           <button 
-            type="button" 
-            class="match-card soil-card {isSelected ? 'selected' : ''} {isMatched ? 'matched' : ''}"
-            onclick={() => handleSelectSoil(soil.id)}
+            type="button"
+            class="match-box {isMatched ? 'is-matched' : ''} {isSelected ? 'is-selected' : ''}"
+            bind:this={sitRefs[sit.id]}
+            onclick={() => handleSelectSit(sit.id)}
             disabled={isMatched}
           >
-            <div class="card-head">
-              <span class="type-indicator font-data">[SOIL]</span>
-              <span class="region-label font-data">{soil.region}</span>
+            <!-- Circular Retro Icon Emblem -->
+            <div class="emblem-circle {sit.iconType}">
+              {#if sit.iconType === 'co2_l1'}
+                <div class="emblem-text font-pixel">
+                  <span>CO2</span>
+                  <span class="sub-emblem">ADAPT<br>LEVEL 1</span>
+                </div>
+              {:else if sit.iconType === 'co2_l2'}
+                <div class="emblem-text font-pixel">
+                  <span>CO2</span>
+                  <span class="sub-emblem">ADAPT<br>LEVEL 2</span>
+                </div>
+              {:else}
+                <div class="emblem-text font-pixel slash-emblem">
+                  <span>CO2</span>
+                  <span class="sub-emblem">NO ADAPT</span>
+                </div>
+              {/if}
             </div>
-            <div class="card-name font-display">{soil.name}</div>
-            <div class="card-meta font-body">{soil.texture}</div>
-            <div class="smap-badge font-data">NASA SMAP: {soil.smapWetness}</div>
 
-            {#if isMatched}
-              <div class="matched-badge font-data">◆ COMPATIBLE CROP ASSIGNED ◆</div>
-            {/if}
+            <div class="box-label font-retro">{sit.title}</div>
+            <div class="box-sub font-data">{sit.sub}</div>
           </button>
         {/each}
       </div>
 
-      <div class="panel-tag font-data" style="margin-top: 14px;">STEP 2: SELECT MATCHING CROP</div>
-      <div class="options-list">
+      <!-- Row 2: Crops -->
+      <div class="grid-row bottom-row">
         {#each CROPS as crop}
           {@const isMatched = Object.values(matches).includes(crop.id)}
           {@const isSelected = selectedCropId === crop.id}
           <button 
-            type="button" 
-            class="match-card crop-card {isSelected ? 'selected' : ''} {isMatched ? 'matched' : ''}"
+            type="button"
+            class="match-box {isMatched ? 'is-matched-crop' : ''} {isSelected ? 'is-selected' : ''}"
+            bind:this={cropRefs[crop.id]}
             onclick={() => handleSelectCrop(crop.id)}
             disabled={isMatched}
           >
-            <div class="card-head">
-              <span class="type-indicator font-data">[CROP]</span>
-              <span class="water-need-tag font-data">{crop.waterReq}</span>
+            <!-- Pixel Art Crop Icon -->
+            <div class="crop-pixel-art">
+              {#if crop.iconType === 'corn'}
+                <!-- Pixel Art Golden Corn -->
+                <svg viewBox="0 0 40 40" width="48" height="48" shape-rendering="crispEdges">
+                  <!-- Green Leaves -->
+                  <rect x="12" y="22" width="4" height="12" fill="#2E7D32" />
+                  <rect x="24" y="22" width="4" height="12" fill="#2E7D32" />
+                  <rect x="8" y="26" width="4" height="6" fill="#388E3C" />
+                  <rect x="28" y="26" width="4" height="6" fill="#388E3C" />
+                  <!-- Yellow Cob -->
+                  <rect x="16" y="8" width="8" height="24" fill="#FFB703" />
+                  <rect x="14" y="12" width="12" height="16" fill="#FFC72C" />
+                  <!-- Kernel Texture -->
+                  <rect x="16" y="10" width="3" height="3" fill="#D97706" />
+                  <rect x="21" y="14" width="3" height="3" fill="#D97706" />
+                  <rect x="16" y="18" width="3" height="3" fill="#D97706" />
+                  <rect x="21" y="22" width="3" height="3" fill="#D97706" />
+                </svg>
+              {:else if crop.iconType === 'pulse'}
+                <!-- Pixel Art Protein Feed / Chickpea -->
+                <svg viewBox="0 0 40 40" width="48" height="48" shape-rendering="crispEdges">
+                  <rect x="18" y="18" width="4" height="18" fill="#4B382A" />
+                  <rect x="10" y="12" width="8" height="8" fill="#D4A373" />
+                  <rect x="22" y="12" width="8" height="8" fill="#D4A373" />
+                  <rect x="16" y="6" width="8" height="8" fill="#E6BA88" />
+                  <!-- Pod veins -->
+                  <rect x="12" y="14" width="2" height="4" fill="#A47148" />
+                  <rect x="24" y="14" width="2" height="4" fill="#A47148" />
+                </svg>
+              {:else}
+                <!-- Pixel Art Basmati Rice / Wheat Sheaf -->
+                <svg viewBox="0 0 40 40" width="48" height="48" shape-rendering="crispEdges">
+                  <rect x="18" y="16" width="4" height="20" fill="#B08958" />
+                  <!-- Grains branching -->
+                  <rect x="14" y="8" width="4" height="6" fill="#E9C46A" />
+                  <rect x="22" y="10" width="4" height="6" fill="#E9C46A" />
+                  <rect x="12" y="14" width="4" height="6" fill="#F4A261" />
+                  <rect x="24" y="16" width="4" height="6" fill="#F4A261" />
+                  <rect x="18" y="4" width="4" height="6" fill="#E9C46A" />
+                </svg>
+              {/if}
             </div>
-            <div class="card-name font-display">{crop.name}</div>
-            <div class="card-meta font-body">{crop.rooting}</div>
-            <div class="trait-desc font-data">{crop.trait}</div>
 
-            {#if isMatched}
-              <div class="matched-badge font-data">◆ PAIRED SUCCESSFULLY ◆</div>
-            {/if}
+            <div class="box-label font-retro">{crop.name}</div>
+            <div class="box-sub font-data">{crop.category}</div>
           </button>
         {/each}
       </div>
     </div>
 
-    <!-- Right Column: NASA Earth Observations & SoilGrids Data Table -->
-    <div class="nasa-reference-panel">
-      <div class="panel-header-badge font-data">
-        <span>[NASA EARTH SCIENCE REFERENCE TABLE]</span>
-      </div>
-      <h3 class="table-title font-display">Soil Hydrology & Crop Suitability Benchmarks</h3>
-
-      <div class="table-scroll-wrap">
-        <table class="nasa-data-table font-data">
-          <thead>
-            <tr>
-              <th>Agro-Zone</th>
-              <th>SMAP Wetness (GWETROOT)</th>
-              <th>ISRIC Organic Carbon</th>
-              <th>Water Need (mm)</th>
-              <th>Recommended Crop Type</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>Punjab Basin</strong></td>
-              <td>0.55 - 0.70</td>
-              <td>0.58% (Depleting)</td>
-              <td>1200 mm</td>
-              <td>Basmati Rice / Wheat (Deep Loam)</td>
-            </tr>
-            <tr>
-              <td><strong>Deccan Plateau</strong></td>
-              <td>0.25 - 0.40</td>
-              <td>0.45% (Gravelly)</td>
-              <td>400 mm</td>
-              <td>Finger Millet / Sorghum (Taproots)</td>
-            </tr>
-            <tr>
-              <td><strong>Sahel Fringe</strong></td>
-              <td>0.15 - 0.28</td>
-              <td>0.25% (Critical)</td>
-              <td>300 mm</td>
-              <td>Desi Chickpea / Cowpea (N-Fixing)</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="scientific-note font-body">
-        <strong>NASA Satellite Context:</strong> NASA SMAP measures the dielectric constant of topsoil to calculate root-zone moisture. When values fall below 0.30, shallow-rooted cereals experience vegetative drought wilting.
-      </div>
-
-      <!-- Action Completion Footer -->
-      <div class="panel-footer">
-        {#if allMatched}
-          <div class="success-banner font-display">
-            ◆ ALL SOILS HARMONIZED! READY TO SOW HARI'S FIELD ◆
+    <!-- Right Column: Authentic Climate Impacts Data Table (Image 2 style) -->
+    <div class="reference-table-card">
+      <div class="card-outer-frame">
+        <!-- Table Header Banner with Flag Symbol -->
+        <div class="table-header-banner">
+          <div class="flag-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 16" width="24" height="16">
+              <rect width="24" height="16" fill="#009B3A" />
+              <polygon points="12,2 22,8 12,14 2,8" fill="#FEDF00" />
+              <circle cx="12" cy="8" r="3.2" fill="#002776" />
+            </svg>
           </div>
-          <button type="button" class="action-btn-proceed font-display" onclick={onComplete}>
-            PROCEED TO HARVEST CYCLE →
-          </button>
-        {:else}
-          <div class="progress-hint font-data">
-            Matches Completed: {Object.keys(matches).length} of {SOILS.length}
+          <div class="header-text font-pixel">
+            POTENTIAL IMPACTS OF CLIMATE CHANGE ON WORLD FOOD SUPPLY, v1 (1995-2100)
           </div>
-          <button type="button" class="reset-link font-data" onclick={resetMatching}>
-            Reset Matches
-          </button>
-        {/if}
+        </div>
+
+        <!-- Authentic Pixel Table -->
+        <div class="table-content-area">
+          <table class="vintage-pixel-table font-retro">
+            <thead>
+              <tr>
+                <th>Adaptation Level</th>
+                <th>CO2 effects</th>
+                <th>wheat</th>
+                <th>rice</th>
+                <th>coarse grains</th>
+                <th>protein feed</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>No Adaption</td>
+                <td>No</td>
+                <td class="neg">-51%</td>
+                <td class="neg">-36%</td>
+                <td class="neg">-19%</td>
+                <td class="neg">-35%</td>
+              </tr>
+              <tr>
+                <td>No Adaption</td>
+                <td>Yes</td>
+                <td class="neg">-41%</td>
+                <td class="neg">-33%</td>
+                <td class="neg">-20%</td>
+                <td class="neg">-36%</td>
+              </tr>
+              <tr>
+                <td>Level 1</td>
+                <td>No</td>
+                <td class="neg">-8%</td>
+                <td class="neg">-8%</td>
+                <td class="pos">+1%</td>
+                <td class="neg">-17%</td>
+              </tr>
+              <tr>
+                <td>Level 1</td>
+                <td>Yes</td>
+                <td class="neg">-33%</td>
+                <td class="neg">-16%</td>
+                <td class="neg">-14%</td>
+                <td class="pos">+13%</td>
+              </tr>
+              <tr class="highlight-row">
+                <td>Level 2</td>
+                <td>Yes</td>
+                <td class="neg">-8%</td>
+                <td class="neg">-3%</td>
+                <td class="neg">-6%</td>
+                <td class="pos">+11%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- NASA Sensor Telemetry Context -->
+        <div class="nasa-context-strip font-data">
+          <strong>NASA Benchmark:</strong> SMAP root-zone moisture &gt; 0.45 enables Level 1 adaptation. When soil organic carbon drops below 0.4%, Level 2 nitrogen-fixing legumes are essential to prevent food supply collapse.
+        </div>
       </div>
+
+      <!-- Action Button to proceed once matched -->
+      {#if allMatched}
+        <button type="button" class="proceed-btn font-pixel" onclick={onComplete}>
+          PROCEED TO FARMING SEASON →
+        </button>
+      {/if}
     </div>
   </div>
 </div>
 
 <style>
-  .matching-game-wrapper {
+  .matching-screen-layout {
+    min-height: 85vh;
+    background-color: #1A0D08;
+    color: #F8EAD6;
+    padding: 24px;
     display: flex;
     flex-direction: column;
-    gap: var(--space-3);
-    max-width: 1080px;
+    gap: 16px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: var(--space-3) var(--space-2);
   }
 
-  /* Top Green Arcade Banner */
-  .top-arcade-banner {
+  .header-section {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    background-color: #0A1C0A;
-    border: 3px solid #3FA34D;
-    border-radius: var(--radius-sm);
-    padding: 10px 18px;
-    box-shadow: 0 4px 0 var(--ink);
+    gap: 20px;
   }
 
-  .banner-corn-left, .banner-corn-right {
-    color: #FFB703;
-    font-size: 0.85rem;
-    letter-spacing: 2px;
-  }
-
-  .banner-title {
-    color: #00FF66;
-    font-size: clamp(1.1rem, 2.8vw, 1.6rem);
-    letter-spacing: 1px;
-    text-align: center;
-    margin: 0;
-  }
-
-  .challenge-subtitle {
-    font-size: 0.95rem;
-    color: var(--ink);
-    text-align: center;
-  }
-
-  .feedback-alert {
+  .back-link {
+    background-color: #2E1810;
+    color: #D4A373;
+    border: 2px solid #8A522A;
     padding: 8px 14px;
-    border: 2px solid var(--chili);
-    background-color: color-mix(in srgb, var(--chili) 15%, var(--paper));
-    border-radius: var(--radius-sm);
-    font-size: 0.82rem;
-    color: var(--ink);
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
+
+  .back-link:hover {
+    background-color: #4A2818;
+    color: #FFF;
+  }
+
+  .title-stack {
     text-align: center;
+    flex-grow: 1;
   }
 
-  .feedback-alert.success {
-    border-color: var(--paddy);
-    background-color: color-mix(in srgb, var(--paddy) 18%, var(--paper));
-    color: var(--ink);
+  .main-title {
+    font-size: 1.2rem;
+    color: #E29578;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
   }
 
-  /* Split Layout */
-  .matching-split-grid {
+  .sub-instruction {
+    font-size: 1.15rem;
+    color: #CDB4A2;
+  }
+
+  .completion-banner {
+    background-color: #8B0000;
+    color: #FFF;
+    border: 3px solid #E63946;
+    padding: 12px;
+    text-align: center;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 0 #000;
+  }
+
+  .status-alert {
+    background-color: #2E1E14;
+    color: #FFB703;
+    border: 2px solid #8A522A;
+    padding: 8px 14px;
+    text-align: center;
+    font-size: 1.1rem;
+  }
+
+  .matching-stage-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-3);
+    grid-template-columns: 1.1fr 1fr;
+    gap: 28px;
     align-items: start;
   }
 
-  @media (max-width: 820px) {
-    .matching-split-grid {
+  @media (max-width: 900px) {
+    .matching-stage-row {
       grid-template-columns: 1fr;
     }
   }
 
-  /* Left Panel */
-  .matching-board-panel {
+  /* Left Column Grid */
+  .matching-grid-wrapper {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    background-color: var(--paper);
-    border: 3px solid var(--ink);
-    border-radius: var(--radius);
-    padding: var(--space-3);
-    box-shadow: 0 4px 0 var(--ink);
+    gap: 48px;
+    padding: 10px;
   }
 
-  .panel-tag {
-    font-size: 0.72rem;
-    font-weight: bold;
-    color: var(--soil);
-    letter-spacing: 0.5px;
+  .connecting-lines-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
   }
 
-  .options-list {
+  .grid-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .match-box {
+    background-color: #24140D;
+    border: 2px solid #6E3B1C;
+    border-radius: 4px;
+    padding: 14px 8px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-  }
-
-  .match-card {
-    background-color: color-mix(in srgb, var(--paper) 95%, var(--turmeric));
-    border: 2px solid var(--ink);
-    border-radius: var(--radius-sm);
-    padding: 8px 12px;
-    text-align: left;
-    cursor: pointer;
-    box-shadow: 0 2px 0 var(--ink);
-    transition: transform var(--fast) var(--spring), background-color var(--fast) ease;
-  }
-
-  .match-card:hover:not(:disabled) {
-    transform: translateY(-2px);
-    background-color: color-mix(in srgb, var(--turmeric) 35%, var(--paper));
-  }
-
-  .match-card.selected {
-    border: 3px solid #00FF66;
-    background-color: color-mix(in srgb, var(--paddy) 25%, var(--paper));
-    transform: scale(1.02);
-  }
-
-  .match-card.matched {
-    opacity: 0.85;
-    background-color: color-mix(in srgb, var(--paddy) 18%, var(--paper));
-    border-color: var(--paddy);
-    cursor: default;
-  }
-
-  .card-head {
-    display: flex;
-    justify-content: space-between;
     align-items: center;
-    font-size: 0.72rem;
-    margin-bottom: 2px;
-  }
-
-  .type-indicator {
-    color: var(--soil);
-    font-weight: bold;
-  }
-
-  .region-label, .water-need-tag {
-    color: var(--monsoon);
-    font-weight: bold;
-  }
-
-  .card-name {
-    font-size: 1.05rem;
-    color: var(--ink);
-    margin: 2px 0;
-  }
-
-  .card-meta {
-    font-size: 0.82rem;
-    color: var(--ink);
-  }
-
-  .smap-badge, .trait-desc {
-    font-size: 0.72rem;
-    color: color-mix(in srgb, var(--ink) 75%, transparent);
-    margin-top: 4px;
-  }
-
-  .matched-badge {
-    margin-top: 4px;
-    font-size: 0.7rem;
-    font-weight: bold;
-    color: var(--paddy);
+    gap: 8px;
+    cursor: pointer;
     text-align: center;
+    transition: transform 0.15s, border-color 0.15s, background-color 0.2s;
   }
 
-  /* Right Panel: NASA Table */
-  .nasa-reference-panel {
+  .match-box:hover:not(:disabled) {
+    border-color: #FFB703;
+    transform: translateY(-2px);
+  }
+
+  .match-box.is-selected {
+    border-color: #00FF66;
+    box-shadow: 0 0 12px rgba(0, 255, 102, 0.4);
+    background-color: #2A382A;
+  }
+
+  .match-box.is-matched {
+    background-color: #38B000 !important;
+    border-color: #00FF66 !important;
+    color: #FFFFFF !important;
+  }
+
+  .match-box.is-matched-crop {
+    border-color: #38B000;
+    background-color: #1A281A;
+  }
+
+  .emblem-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #555;
+    background-color: #3A3A3A;
+  }
+
+  .emblem-circle.co2_l1 {
+    background-color: #555E55;
+    border-color: #889988;
+  }
+
+  .emblem-circle.co2_l2 {
+    background-color: #2A5A2A;
+    border-color: #00FF66;
+  }
+
+  .emblem-circle.no_co2 {
+    background-color: #4A2020;
+    border-color: #E63946;
+  }
+
+  .emblem-text {
+    font-size: 0.52rem;
+    color: #FFF;
+    text-align: center;
+    line-height: 1.1;
+  }
+
+  .sub-emblem {
+    font-size: 0.45rem;
+    color: #FFD700;
+  }
+
+  .box-label {
+    font-size: 1.05rem;
+    color: #F8EAD6;
+    margin-top: 4px;
+  }
+
+  .box-sub {
+    font-size: 0.65rem;
+    color: #A88F78;
+  }
+
+  .crop-pixel-art {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Right Column Reference Table */
+  .reference-table-card {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    background-color: #0E1A12;
-    border: 3px solid #3FA34D;
-    border-radius: var(--radius);
-    padding: var(--space-3);
-    color: #E0F2E9;
-    box-shadow: 0 4px 0 var(--ink);
+    gap: 16px;
   }
 
-  .panel-header-badge {
-    font-size: 0.72rem;
-    color: #00FF66;
+  .card-outer-frame {
+    background-color: #E29578;
+    border: 4px solid #8A4B2A;
+    box-shadow: 0 4px 0 #000;
+    padding: 6px;
+  }
+
+  .table-header-banner {
+    background-color: #8A4B2A;
+    color: #F8EAD6;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .header-text {
+    font-size: 0.68rem;
+    line-height: 1.3;
     letter-spacing: 0.5px;
   }
 
-  .table-title {
-    font-size: 1.15rem;
-    color: #FFFFFF;
-    margin: 0;
-  }
-
-  .table-scroll-wrap {
+  .table-content-area {
+    background-color: #FDF0D5;
     overflow-x: auto;
   }
 
-  .nasa-data-table {
+  .vintage-pixel-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.72rem;
-    text-align: left;
-  }
-
-  .nasa-data-table th, .nasa-data-table td {
-    padding: 6px 8px;
-    border-bottom: 1px solid #1E3D24;
-  }
-
-  .nasa-data-table th {
-    background-color: #162E1D;
-    color: #00FF66;
-  }
-
-  .nasa-data-table tr:hover {
-    background-color: #14281A;
-  }
-
-  .scientific-note {
-    font-size: 0.8rem;
-    line-height: 1.35;
-    background-color: #142419;
-    border-left: 3px solid #00FF66;
-    padding: 8px;
-    border-radius: 0 4px 4px 0;
-  }
-
-  .panel-footer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    margin-top: auto;
-    padding-top: 10px;
-  }
-
-  .progress-hint {
-    font-size: 0.75rem;
-    color: #A0C8AA;
-  }
-
-  .reset-link {
-    background: none;
-    border: none;
-    color: #FFB703;
-    font-size: 0.72rem;
-    cursor: pointer;
-    text-decoration: underline;
-  }
-
-  .success-banner {
-    color: #00FF66;
-    font-size: 0.95rem;
+    color: #2B1B12;
+    font-size: 1.1rem;
     text-align: center;
-    animation: flash 1s infinite alternate;
   }
 
-  @keyframes flash {
-    from { opacity: 0.8; }
-    to { opacity: 1; }
-  }
-
-  .action-btn-proceed {
-    background-color: #00FF66;
-    color: #0A1C0A;
-    border: 2px solid var(--ink);
-    border-radius: var(--radius-pill);
-    padding: 8px 24px;
-    font-size: 1.05rem;
+  .vintage-pixel-table th {
+    background-color: #EAD0B0;
+    border: 1px solid #C49E78;
+    padding: 6px 4px;
     font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 4px 0 var(--ink);
-    transition: transform var(--fast) var(--spring);
+    font-size: 1rem;
   }
 
-  .action-btn-proceed:hover {
+  .vintage-pixel-table td {
+    border: 1px solid #D6BBA0;
+    padding: 6px 4px;
+  }
+
+  .vintage-pixel-table .neg {
+    color: #B22222;
+    font-weight: bold;
+  }
+
+  .vintage-pixel-table .pos {
+    color: #2E7D32;
+    font-weight: bold;
+  }
+
+  .highlight-row {
+    background-color: #D6ECD2;
+  }
+
+  .nasa-context-strip {
+    background-color: #C89F82;
+    color: #2B1B12;
+    font-size: 0.72rem;
+    padding: 8px 10px;
+    line-height: 1.4;
+    border-top: 2px solid #8A4B2A;
+  }
+
+  .proceed-btn {
+    background-color: #00FF66;
+    color: #000;
+    border: 3px solid #000;
+    box-shadow: 0 4px 0 #000;
+    padding: 12px 18px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .proceed-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 0 var(--ink);
+    box-shadow: 0 6px 0 #000;
+    background-color: #33FF88;
   }
 </style>

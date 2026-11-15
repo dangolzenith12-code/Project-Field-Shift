@@ -169,15 +169,15 @@ export const SATELLITE_NOTES: Record<string, SatelliteNote> = {
 };
 
 export const CROPS_CATALOG: CropTrait[] = [
-  { id: 'rice', name: 'Basmati Rice', icon: '🌾', waterNeed: 'High', nFixing: false, rootDepth: 'Shallow', coverValue: 'Low', growingSeasonDays: 120, revenuePotential: 95 },
-  { id: 'wheat', name: 'Winter Wheat', icon: '🌾', waterNeed: 'Medium', nFixing: false, rootDepth: 'Medium', coverValue: 'Medium', growingSeasonDays: 135, revenuePotential: 75 },
-  { id: 'millet', name: 'Finger Millet (Ragi)', icon: '🌱', waterNeed: 'Low', nFixing: false, rootDepth: 'Deep', coverValue: 'High', growingSeasonDays: 105, revenuePotential: 60 },
-  { id: 'chickpea', name: 'Chickpea / Gram', icon: '🌿', waterNeed: 'Low', nFixing: true, rootDepth: 'Deep', coverValue: 'High', growingSeasonDays: 95, revenuePotential: 70 },
-  { id: 'mung', name: 'Mung Green Bean', icon: '🫘', waterNeed: 'Low', nFixing: true, rootDepth: 'Medium', coverValue: 'High', growingSeasonDays: 65, revenuePotential: 55 },
-  { id: 'corn', name: 'Field Corn', icon: '🌽', waterNeed: 'High', nFixing: false, rootDepth: 'Medium', coverValue: 'Low', growingSeasonDays: 110, revenuePotential: 90 },
-  { id: 'soy', name: 'Soybean', icon: '🫛', waterNeed: 'Medium', nFixing: true, rootDepth: 'Medium', coverValue: 'Medium', growingSeasonDays: 100, revenuePotential: 80 },
-  { id: 'cover_clover', name: 'Crimson Clover', icon: '☘️', waterNeed: 'Low', nFixing: true, rootDepth: 'Shallow', coverValue: 'High', growingSeasonDays: 50, revenuePotential: 20 },
-  { id: 'mustard', name: 'Yellow Mustard', icon: '🌼', waterNeed: 'Medium', nFixing: false, rootDepth: 'Deep', coverValue: 'Medium', growingSeasonDays: 85, revenuePotential: 65 }
+  { id: 'rice', name: 'Basmati Rice', icon: '◆', waterNeed: 'High', nFixing: false, rootDepth: 'Shallow', coverValue: 'Low', growingSeasonDays: 120, revenuePotential: 95 },
+  { id: 'wheat', name: 'Winter Wheat', icon: '▲', waterNeed: 'Medium', nFixing: false, rootDepth: 'Medium', coverValue: 'Medium', growingSeasonDays: 135, revenuePotential: 75 },
+  { id: 'millet', name: 'Finger Millet (Ragi)', icon: '●', waterNeed: 'Low', nFixing: false, rootDepth: 'Deep', coverValue: 'High', growingSeasonDays: 105, revenuePotential: 60 },
+  { id: 'chickpea', name: 'Chickpea / Gram', icon: '✦', waterNeed: 'Low', nFixing: true, rootDepth: 'Deep', coverValue: 'High', growingSeasonDays: 95, revenuePotential: 70 },
+  { id: 'mung', name: 'Mung Green Bean', icon: '■', waterNeed: 'Low', nFixing: true, rootDepth: 'Medium', coverValue: 'High', growingSeasonDays: 65, revenuePotential: 55 },
+  { id: 'corn', name: 'Field Corn', icon: '▼', waterNeed: 'High', nFixing: false, rootDepth: 'Medium', coverValue: 'Low', growingSeasonDays: 110, revenuePotential: 90 },
+  { id: 'soy', name: 'Soybean', icon: '◈', waterNeed: 'Medium', nFixing: true, rootDepth: 'Medium', coverValue: 'Medium', growingSeasonDays: 100, revenuePotential: 80 },
+  { id: 'cover_clover', name: 'Crimson Clover', icon: '❖', waterNeed: 'Low', nFixing: true, rootDepth: 'Shallow', coverValue: 'High', growingSeasonDays: 50, revenuePotential: 20 },
+  { id: 'mustard', name: 'Yellow Mustard', icon: '✹', waterNeed: 'Medium', nFixing: false, rootDepth: 'Deep', coverValue: 'Medium', growingSeasonDays: 85, revenuePotential: 65 }
 ];
 
 export const STRATEGIES: StrategyOption[] = [

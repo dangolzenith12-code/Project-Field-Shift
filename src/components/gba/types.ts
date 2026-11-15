@@ -56,7 +56,7 @@ export type PortraitId = 'amma_smile' | 'amma_worry' | 'amma_wise' | 'agronomist
 export interface DialogueChoice {
   text: string;
   nextDialogueId?: string;
-  action?: 'open_compare' | 'open_nasa' | 'advance_season' | 'inspect_well' | 'close';
+  action?: 'open_compare' | 'open_nasa' | 'advance_season' | 'inspect_well' | 'close' | string;
 }
 
 export interface DialogueNode {
