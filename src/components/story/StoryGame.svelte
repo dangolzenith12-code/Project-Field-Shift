@@ -528,6 +528,7 @@
         {activeEntity} 
         {weatherCondition}
         soilMoisture={meters.soilMoisture}
+        {meters}
         onInteract={(ent) => handleActionA()} 
       />
 
