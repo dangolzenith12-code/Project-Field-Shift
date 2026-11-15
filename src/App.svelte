@@ -10,9 +10,11 @@
   import CompareScreen from './components/compare/CompareScreen.svelte';
   import NasaDataView from './components/nasa/NasaDataView.svelte';
   import StyleguideView from './components/styleguide/StyleguideView.svelte';
+  import GamePromoModal from './components/promo/GamePromoModal.svelte';
 
   // Master State Machine - Starts directly into Hari's Story Game!
   let currentView = $state<SceneView>('STORY_GAME');
+  let isPromoOpen = $state(false);
   let selectedRegion = $state<RegionInfo>(REGIONS.punjab);
   let eraIndex = $state(0);
   const currentEra = $derived(ERAS[eraIndex]);
@@ -147,6 +149,14 @@
         >
           [? STYLEGUIDE]
         </button>
+        <button 
+          type="button"
+          class="promo-nav-btn font-pixel" 
+          onclick={() => isPromoOpen = true}
+          title="Play 10-Second NASA Space Apps Promo Trailer"
+        >
+          [🎬 10s PROMO]
+        </button>
       </nav>
 
       <!-- Sound Toggle -->
@@ -167,6 +177,7 @@
         currentRegion={selectedRegion}
         onViewStyleguide={() => setView('STYLEGUIDE')}
         onOpenOverworld={() => setView('SEASON_PLAY')}
+        onOpenPromo={() => isPromoOpen = true}
       />
     {:else if currentView === 'INTRO'}
       <IntroScreen 
@@ -221,6 +232,18 @@
       <StyleguideView onBack={() => setView('SEASON_PLAY')} />
     {/if}
   </main>
+
+  <!-- 10-Second Cinematic Promo Trailer Modal -->
+  {#if isPromoOpen}
+    <GamePromoModal 
+      isOpen={isPromoOpen}
+      onClose={() => isPromoOpen = false} 
+      onPlayGame={() => {
+        isPromoOpen = false;
+        setView('STORY_GAME');
+      }} 
+    />
+  {/if}
 </div>
 
 <style>
@@ -339,6 +362,36 @@
   .sound-btn:hover {
     background-color: #FFB703;
     color: #000000;
+  }
+
+  .promo-nav-btn {
+    font-family: var(--font-pixel);
+    font-size: 0.68rem;
+    color: #000000;
+    background: linear-gradient(135deg, #FFB703 0%, #FF8500 100%);
+    border: 2px solid #FFE699;
+    padding: 6px 12px;
+    cursor: pointer;
+    box-shadow: 0 3px 0 #000, 0 0 12px rgba(255, 183, 3, 0.45);
+    animation: promoPulse 2s infinite ease-in-out;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .promo-nav-btn:hover {
+    background: linear-gradient(135deg, #00FF66 0%, #00CC55 100%);
+    border-color: #A0FFA0;
+    color: #000000;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 0 #000, 0 0 20px rgba(0, 255, 102, 0.7);
+  }
+
+  @keyframes promoPulse {
+    0%, 100% {
+      box-shadow: 0 3px 0 #000, 0 0 8px rgba(255, 183, 3, 0.4);
+    }
+    50% {
+      box-shadow: 0 3px 0 #000, 0 0 18px rgba(255, 183, 3, 0.85);
+    }
   }
 
   .app-main {

@@ -13,9 +13,10 @@
     currentRegion: RegionInfo;
     onViewStyleguide?: () => void;
     onOpenOverworld?: () => void;
+    onOpenPromo?: () => void;
   }
 
-  let { currentRegion, onViewStyleguide, onOpenOverworld }: Props = $props();
+  let { currentRegion, onViewStyleguide, onOpenOverworld, onOpenPromo }: Props = $props();
 
   // The 5-Act Global Story Stages
   type StoryStage = 
@@ -289,11 +290,18 @@
       </button>
     </div>
 
-    {#if onOpenOverworld}
-      <button type="button" class="overworld-jump-btn font-pixel" onclick={onOpenOverworld}>
-        <span>▲</span> [OPEN GBA OVERWORLD RPG]
-      </button>
-    {/if}
+    <div class="strip-actions">
+      {#if onOpenPromo}
+        <button type="button" class="promo-strip-btn font-pixel" onclick={onOpenPromo}>
+          🎬 [10s PROMO]
+        </button>
+      {/if}
+      {#if onOpenOverworld}
+        <button type="button" class="overworld-jump-btn font-pixel" onclick={onOpenOverworld}>
+          <span>▲</span> [OPEN GBA OVERWORLD RPG]
+        </button>
+      {/if}
+    </div>
   </header>
 
   {#if currentStage === 'PROLOGUE_CONSENT'}
@@ -957,6 +965,32 @@
     font-weight: bold;
     border-color: #000000;
     box-shadow: 0 0 8px rgba(0, 255, 102, 0.5);
+  }
+
+  .strip-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  .promo-strip-btn {
+    background: linear-gradient(135deg, #FFB703 0%, #FF8500 100%);
+    border: 1px solid #FFE699;
+    color: #000000;
+    font-size: 8px;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(255, 183, 3, 0.4);
+    transition: all 0.15s ease;
+  }
+
+  .promo-strip-btn:hover {
+    background: #00FF66;
+    border-color: #A0FFA0;
+    box-shadow: 0 0 12px rgba(0, 255, 102, 0.6);
   }
 
   .overworld-jump-btn {

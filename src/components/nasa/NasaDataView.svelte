@@ -1,6 +1,4 @@
 <script lang="ts">
-  import Button from '../common/Button.svelte';
-  import StickerCard from '../common/StickerCard.svelte';
   import BlockPrintBorder from '../common/BlockPrintBorder.svelte';
 
   interface Props {
@@ -11,213 +9,635 @@
 
   const datasets = [
     {
+      id: 'power',
       name: 'NASA POWER (Prediction Of Worldwide Energy Resources)',
       role: 'Core Climate Backbone',
+      badgeColor: '#00E5FF',
+      icon: '🛰️',
+      satellite: 'MERRA-2 Reanalysis & Solar Satellites',
+      resolution: '~0.5° Grid (~50km)',
+      cadence: 'Daily Continuous (1981–Present)',
       parameters: 'T2M, T2M_MAX, T2M_MIN, PRECTOTCORR, EVLAND, GWETROOT, GWETTOP, ALLSKY_SFC_SW_DWN',
-      description: 'Provides daily continuous meteorological data since 1981 from the NASA GMAO MERRA-2 assimilation model and satellite solar observations. Used to compute 45-year historical baselines and temperature/rainfall anomalies for each demo region.',
-      access: 'Public REST API (key-free), community=AG.'
+      description: 'Provides continuous daily meteorological parameters derived from the NASA GMAO MERRA-2 assimilation model and spaceborne solar instruments. In Field Shift, it powers the 45-year historical climate baselines, temperature stress thresholds, and regional rainfall deficit simulations.',
+      access: 'Public REST API (Key-Free) • Agroclimatology Community (AG)'
     },
     {
+      id: 'smap',
       name: 'NASA SMAP (Soil Moisture Active Passive)',
       role: 'Root-Zone Hydrology Validation',
-      parameters: 'L4 Surface & Root-Zone Soil Moisture (GWETROOT / GWETTOP)',
-      description: 'L-band microwave radiometer measuring soil wetness in the top 100 cm. In Field Shift, it grounds the Water Jar meter and reveals when topsoil flash-dries despite deep rainfall.',
-      access: 'NASA Earthdata / GIBS WMS layers.'
+      badgeColor: '#00FF66',
+      icon: '📡',
+      satellite: 'Observational L-Band Microwave Radiometer (685 km Orbit)',
+      resolution: '9 km / 36 km Gridded Products',
+      cadence: '2–3 Day Global Revisit',
+      parameters: 'L4 Surface (0–5 cm) & Root-Zone (0–100 cm) Soil Moisture (GWETROOT / GWETTOP)',
+      description: 'Employs high-sensitivity L-band (1.41 GHz) microwave emissions to pierce cloud cover and probe water content in the top meter of soil. Grounds Field Shift’s Water Balance Jar meter and reveals when topsoil flash-dries despite deep seasonal rainfall.',
+      access: 'NASA Earthdata / GIBS WMS Layers • Open Access'
     },
     {
+      id: 'modis',
       name: 'NASA GIBS & MODIS (Terra & Aqua)',
       role: 'Satellite Imagery & NDVI Phenology',
-      parameters: 'MODIS Normalized Difference Vegetation Index (250m) & Land Surface Temperature',
-      description: 'Tracks vegetative vigor across the agricultural growing seasons. Used for visual satellite overlay validation and phenological growth curves.',
-      access: 'NASA Global Imagery Browse Services (GIBS) WMTS key-free raster tiles.'
+      badgeColor: '#FFD166',
+      icon: '🌍',
+      satellite: 'Terra (10:30 AM equator crossing) & Aqua (1:30 PM equator crossing)',
+      resolution: '250m / 500m / 1km Spectral Bands',
+      cadence: 'Daily Global Coverage / 16-Day NDVI Composites',
+      parameters: 'MOD13Q1 Normalized Difference Vegetation Index (NDVI) & Land Surface Temperature (LST)',
+      description: 'Observes photosynthetic canopy reflectance in near-infrared and red spectra. Validates agricultural crop growth stages, detect mid-season vegetative stress, and generates seasonal greenness curves for each crop rotation path.',
+      access: 'NASA Global Imagery Browse Services (GIBS) WMTS Tiles'
     },
     {
+      id: 'grace',
       name: 'NASA GRACE & GRACE-FO (Gravity Recovery and Climate Experiment)',
       role: 'Groundwater Aquifer Depletion Narrative',
-      parameters: 'Terrestrial Water Storage Anomaly (TWS)',
-      description: 'Twin satellites measuring Earth’s gravitational field changes caused by shifting mass of underground water. Grounded as a regional narrative trend (e.g. -3.2 cm/yr in northwest India) rather than raw live processing.',
-      access: 'NASA JPL GRACE Tellus monthly mascon grids.'
+      badgeColor: '#A78BFA',
+      icon: '🌊',
+      satellite: 'Twin K-Band / Laser Ranging Interferometry Satellites (500 km Orbit)',
+      resolution: '~300 km Mascon Grids',
+      cadence: 'Monthly Gravitational Anomaly Solutions',
+      parameters: 'Terrestrial Water Storage Anomaly (TWSA) & Groundwater Storage Deficit',
+      description: 'Measures ultra-minute micron-scale distance variations between paired satellites to detect shifting subterranean water mass. Grounded as a regional narrative trend (e.g., −3.2 cm/year aquifer drawdown in northwest India) illustrating deep borewell depletion.',
+      access: 'NASA JPL Tellus Monthly Mascon Solutions'
     },
     {
+      id: 'soilgrids',
       name: 'ISRIC SoilGrids & SRTM Topography',
       role: 'Soil Physical Properties & Field Slope',
-      parameters: 'Clay, Sand, Silt fractions, Soil Organic Carbon (SOC), SRTM 30m Elevation',
-      description: 'Provides baseline soil textural classes and erosion vulnerability indices across our four agro-ecological zones.',
-      access: 'ISRIC REST API & NASA Shuttle Radar Topography Mission (SRTM).'
+      badgeColor: '#38BDF8',
+      icon: '🌱',
+      satellite: 'Shuttle Radar Topography Mission (SRTM) & Global Soil Profiles',
+      resolution: '30m Elevation / 250m Soil Profile Depth Grids',
+      cadence: 'Static High-Resolution Baselines',
+      parameters: 'Clay, Sand, Silt fractions, Soil Organic Carbon (SOC), Bulk Density, Slope Angle',
+      description: 'Supplies foundational soil hydraulic parameters and topographic steepness indices. Enables Field Shift to model water percolation velocity, crusting tendency, and erosion risk across our four agro-ecological zones.',
+      access: 'ISRIC WCS REST API & USGS Earth Resources'
     }
   ];
 </script>
 
-<div class="nasa-docs-container">
-  <div class="docs-header">
-    <div class="header-titles">
-      <h2 class="title font-display">NASA Earth Science Data Citations & Methodology</h2>
-      <p class="subtitle font-body">
-        Full transparency on the satellite instruments, models, and honest limitations powering Field Shift.
+<div class="nasa-hub-container">
+  <!-- Top Navigation Header -->
+  <header class="hub-header">
+    <div class="header-left">
+      <div class="hub-tag font-pixel">
+        <span class="pulse-satellite">🛰️</span>
+        <span>NASA EARTH SCIENCE TELEMETRY HUB</span>
+      </div>
+      <h1 class="hub-title font-pixel">Satellite Data Citations & Scientific Grounding</h1>
+      <p class="hub-subtitle font-body">
+        Complete transparency on the NASA orbital instruments, climate models, open APIs, and agronomic physics powering Field Shift.
       </p>
     </div>
-    <Button variant="secondary" size="md" onclick={onBack}>← Back to Game</Button>
+    <div class="header-right">
+      <button type="button" class="return-game-btn font-pixel" onclick={onBack}>
+        ← Return to Field
+      </button>
+    </div>
+  </header>
+
+  <!-- Quick Telemetry Stats Strip -->
+  <div class="telemetry-summary-strip font-pixel">
+    <div class="strip-item">
+      <span class="strip-label">SATELLITE MISSIONS</span>
+      <span class="strip-val text-cyan">5 CORE FEEDS</span>
+    </div>
+    <div class="strip-item">
+      <span class="strip-label">ORBITAL BANDS</span>
+      <span class="strip-val text-green">L-BAND • VIS • NIR • GRAVITY</span>
+    </div>
+    <div class="strip-item">
+      <span class="strip-label">HISTORICAL BASELINE</span>
+      <span class="strip-val text-gold">45 YEARS (1981–2026)</span>
+    </div>
+    <div class="strip-item">
+      <span class="strip-label">API ARCHITECTURE</span>
+      <span class="strip-val text-white">KEY-FREE OPEN ACCESS</span>
+    </div>
   </div>
 
-  <BlockPrintBorder height={14} />
+  <BlockPrintBorder height={14} color="#00FF66" />
 
-  <!-- The "Supports, Doesn't Replace Farmers" Core Philosophy -->
-  <div class="manifesto-card sticker-card no-tape">
-    <div class="manifesto-badge font-display">OUR ETHICAL MANDATE</div>
-    <h3 class="manifesto-title font-display">A Decision Aid, Not a Black-Box Yield Predictor</h3>
-    <p class="manifesto-text font-body">
-      Field Shift uses explainable, transparent bucket water balance and agronomic rules—<strong>not a black-box deep learning model</strong>. Satellites observe regional climate patterns from hundreds of kilometers above, but they cannot replace a farmer's tactile knowledge of their soil, local market dynamics, or extension agent wisdom. Every high-risk recommendation carries an <strong>"ASK A LOCAL EXPERT"</strong> rubber stamp to reinforce this message.
-    </p>
-  </div>
+  <!-- Ethical Mandate Card -->
+  <section class="mandate-card" aria-labelledby="mandate-heading">
+    <div class="mandate-top">
+      <span class="mandate-badge font-pixel">ETHICAL MANDATE • TRANSPARENT AGRONOMY</span>
+      <span class="mandate-status font-pixel">✓ 100% EXPLAINABLE</span>
+    </div>
+    <h2 id="mandate-heading" class="mandate-title font-pixel">
+      A Decision Aid to Support Farmers — Not a Black-Box Yield Predictor
+    </h2>
+    <div class="mandate-body font-body">
+      <p>
+        Field Shift is built on physical, transparent bucket water balance models and FAO-56 agroclimatology—<strong class="highlight-accent">not an opaque black-box machine learning algorithm</strong>.
+      </p>
+      <p>
+        NASA satellites observe regional climate trajectories and topsoil moisture from 680 kilometers above Earth. While invaluable for spotting multi-week monsoon delays and historical aquifer trends, orbital sensors cannot replace a farmer’s tactile connection with their soil, local seed wisdom, or village cooperative knowledge.
+      </p>
+      <p class="mandate-callout font-data">
+        Every high-risk seasonal rotation recommendation carries an <span class="badge-expert font-pixel">"ASK A LOCAL EXPERT"</span> stamp, affirming that satellite technology must empower farmers and extension officers, not dictate to them.
+      </p>
+    </div>
+  </section>
 
-  <!-- Detailed Dataset Breakdown -->
-  <div class="datasets-list">
-    {#each datasets as ds}
-      <StickerCard hasTape={false} class="dataset-card">
-        <div class="ds-top">
-          <span class="ds-role font-data">[{ds.role}]</span>
-          <span class="ds-access font-data">{ds.access}</span>
-        </div>
-        <h4 class="ds-name font-display">{ds.name}</h4>
-        <div class="ds-params font-data">Parameters: <code>{ds.parameters}</code></div>
-        <p class="ds-desc font-body">{ds.description}</p>
-      </StickerCard>
-    {/each}
-  </div>
+  <!-- Detailed Dataset Breakdown Cards -->
+  <section class="datasets-section" aria-label="NASA Datasets and Instruments">
+    <div class="section-heading-bar">
+      <h3 class="section-heading-title font-pixel">📡 Active Satellite Constellations & Ground Instruments</h3>
+      <span class="section-heading-sub font-data">Click or inspect each instrument’s parameters below</span>
+    </div>
 
-  <!-- Honest Limitations Section -->
-  <div class="limitations-card sticker-card no-tape">
-    <h3 class="lim-title font-display">Honest Scientific Limitations</h3>
+    <div class="datasets-grid">
+      {#each datasets as ds}
+        <article class="dataset-card" style:--accent-color={ds.badgeColor}>
+          <!-- Card Header Strip -->
+          <div class="ds-card-header">
+            <div class="ds-role-pill font-pixel" style:color={ds.badgeColor} style:border-color={ds.badgeColor}>
+              <span>{ds.icon}</span>
+              <span>{ds.role}</span>
+            </div>
+            <div class="ds-access-pill font-data">
+              <span class="live-indicator">●</span>
+              <span>{ds.access}</span>
+            </div>
+          </div>
+
+          <!-- Dataset Title -->
+          <h4 class="ds-card-title font-pixel">{ds.name}</h4>
+
+          <!-- Orbital Spec Matrix -->
+          <div class="ds-specs-matrix font-data">
+            <div class="spec-cell">
+              <span class="spec-label">PLATFORM:</span>
+              <span class="spec-value">{ds.satellite}</span>
+            </div>
+            <div class="spec-cell">
+              <span class="spec-label">RESOLUTION:</span>
+              <span class="spec-value">{ds.resolution}</span>
+            </div>
+            <div class="spec-cell">
+              <span class="spec-label">CADENCE:</span>
+              <span class="spec-value">{ds.cadence}</span>
+            </div>
+          </div>
+
+          <!-- Parameters Box -->
+          <div class="ds-params-box">
+            <div class="params-label font-pixel">MEASURED PARAMETERS:</div>
+            <code class="params-code font-data">{ds.parameters}</code>
+          </div>
+
+          <!-- Description -->
+          <p class="ds-card-desc font-body">{ds.description}</p>
+        </article>
+      {/each}
+    </div>
+  </section>
+
+  <BlockPrintBorder height={14} color="#00FF66" />
+
+  <!-- Honest Scientific Limitations Card -->
+  <section class="limitations-card" aria-labelledby="limitations-heading">
+    <div class="lim-header">
+      <span class="lim-alert-icon">⚠️</span>
+      <div>
+        <h3 id="limitations-heading" class="lim-title font-pixel">Honest Scientific Limitations & Assumptions</h3>
+        <p class="lim-subtitle font-body">Transparent disclosure of spatial bounds, model approximations, and uncertainty.</p>
+      </div>
+    </div>
+
     <ul class="lim-list font-body">
       <li>
-        <strong>Spatial Resolution:</strong> NASA POWER data is assimilated at ~0.5° (~50km) resolution. Micro-climates, localized rain shadows, and valley breezes may vary from regional grid points.
+        <strong class="font-pixel lim-bullet-title">Spatial Resolution vs. Microclimates:</strong>
+        NASA POWER grid cells span approximately 0.5° (~50 km). Local micro-climates, valley thermal pockets, hill shade, and convective rainstorms may differ from the regional assimilation grid.
       </li>
       <li>
-        <strong>Agronomic Trait Approximations:</strong> Crop trait parameters (water use, rooting depth, nitrogen fixation) are synthesized from FAO 56 guidelines and regional extension publications; field yields depend on seed variety, pest pressure, and timing.
+        <strong class="font-pixel lim-bullet-title">Agronomic Trait Approximations:</strong>
+        Crop parameters (water demand, root depth coefficients, nitrogen fixation rates) are synthesized from peer-reviewed FAO-56 agronomic tables and Indian Council of Agricultural Research (ICAR) field studies. Actual farm yields vary based on seed variety, weed competition, pest pressure, and timing.
       </li>
       <li>
-        <strong>Monte Carlo Stochasticity:</strong> Projected resilience bands are simulated by resampling 40 years of actual NASA POWER historical records with additive temperature shifts, providing a realistic distribution of climate volatility rather than an infallible forecast.
+        <strong class="font-pixel lim-bullet-title">Monte Carlo Stochasticity (40-Year Resample):</strong>
+        Projected resilience ribbons are generated by resampling 40 years of actual NASA meteorological observations combined with projected temperature offsets, providing an empirical probability range (p10, median, p90) rather than an infallible deterministic prophecy.
+      </li>
+      <li>
+        <strong class="font-pixel lim-bullet-title">Subsurface Groundwater Mapping:</strong>
+        GRACE twin satellite gravity signals map broad regional basin water deficits (e.g. northwest India's Indo-Gangetic aquifer), not individual farm tube-well water depths.
       </li>
     </ul>
-  </div>
+  </section>
 </div>
 
 <style>
-  .nasa-docs-container {
+  .nasa-hub-container {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
-    max-width: 1040px;
+    gap: 20px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: var(--space-4) var(--space-2);
+    padding: 24px 16px 48px;
+    color: #FFFFFF;
   }
 
-  .docs-header {
+  /* Header */
+  .hub-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    gap: var(--space-3);
+    align-items: flex-start;
+    gap: 16px;
     flex-wrap: wrap;
+    background: #09130D;
+    border: 2px solid #244C32;
+    border-radius: 8px;
+    padding: 20px 24px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
   }
 
-  .title {
-    font-size: 1.85rem;
-    color: var(--ink);
-    transform: rotate(-0.8deg);
-  }
-
-  .subtitle {
-    font-size: 0.95rem;
-    max-width: 650px;
-  }
-
-  .manifesto-card {
-    background-color: color-mix(in srgb, var(--turmeric) 20%, var(--paper));
-    border: var(--outline-thick);
-    padding: var(--space-4);
-  }
-
-  .manifesto-badge {
-    color: var(--chili);
-    font-size: 0.85rem;
-    letter-spacing: 0.8px;
-    margin-bottom: 4px;
-  }
-
-  .manifesto-title {
-    font-size: 1.4rem;
-    margin-bottom: 6px;
-  }
-
-  .manifesto-text {
-    font-size: 0.95rem;
-    line-height: 1.5;
-  }
-
-  .datasets-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  :global(.dataset-card) {
-    padding: var(--space-3) var(--space-4);
-  }
-
-  .ds-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .ds-role {
-    font-size: 0.75rem;
-    font-weight: bold;
-    color: var(--monsoon);
-  }
-
-  .ds-access {
-    font-size: 0.72rem;
-    color: color-mix(in srgb, var(--ink) 75%, transparent);
-  }
-
-  .ds-name {
-    font-size: 1.25rem;
-    margin: 4px 0;
-  }
-
-  .ds-params {
-    font-size: 0.78rem;
-    background-color: color-mix(in srgb, var(--paper) 90%, var(--soil));
-    padding: 3px 8px;
-    border-radius: 4px;
-    border: 1px solid var(--ink);
-    display: inline-block;
-    margin-bottom: 6px;
-  }
-
-  .ds-desc {
-    font-size: 0.9rem;
-    line-height: 1.45;
-  }
-
-  .limitations-card {
-    background-color: color-mix(in srgb, var(--soil) 12%, var(--paper));
-    padding: var(--space-4);
-  }
-
-  .lim-title {
-    font-size: 1.3rem;
-    margin-bottom: var(--space-2);
-  }
-
-  .lim-list {
+  .header-left {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    font-size: 0.9rem;
+    max-width: 820px;
+  }
+
+  .hub-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: #00E5FF;
+    letter-spacing: 0.5px;
+  }
+
+  .pulse-satellite {
+    animation: satelliteFloat 2s ease-in-out infinite;
+  }
+
+  @keyframes satelliteFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+
+  .hub-title {
+    font-size: clamp(1.15rem, 2.5vw, 1.55rem);
+    color: #FFFFFF;
+    line-height: 1.35;
+    text-shadow: 0 0 12px rgba(0, 229, 255, 0.3);
+  }
+
+  .hub-subtitle {
+    font-size: 14px;
+    color: #A0C8AA;
+    line-height: 1.5;
+  }
+
+  .return-game-btn {
+    background: #0E1F14;
+    border: 2px solid #00FF66;
+    color: #00FF66;
+    font-size: 11px;
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0, 255, 102, 0.25);
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .return-game-btn:hover {
+    background: #00FF66;
+    color: #000000;
+    transform: translateY(-2px);
+    box-shadow: 0 0 16px rgba(0, 255, 102, 0.6);
+  }
+
+  /* Telemetry Summary Strip */
+  .telemetry-summary-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    background: #06100B;
+    border: 1.5px solid #1D3B27;
+    border-radius: 6px;
+    padding: 12px 16px;
+  }
+
+  .strip-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .strip-label {
+    font-size: 9px;
+    color: #6C8E76;
+    letter-spacing: 0.5px;
+  }
+
+  .strip-val {
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+  }
+
+  .text-cyan { color: #00E5FF; }
+  .text-green { color: #00FF66; }
+  .text-gold { color: #FFD166; }
+  .text-white { color: #FFFFFF; }
+
+  /* Ethical Mandate Card */
+  .mandate-card {
+    background: linear-gradient(180deg, #0C1E14 0%, #06120B 100%);
+    border: 2.5px solid #00FF66;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 0 20px rgba(0, 255, 102, 0.2), 0 8px 24px rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .mandate-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .mandate-badge {
+    font-size: 10px;
+    color: #000000;
+    background-color: #FFB703;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    box-shadow: 0 0 8px rgba(255, 183, 3, 0.4);
+  }
+
+  .mandate-status {
+    font-size: 10px;
+    color: #00FF66;
+    background: #11281A;
+    border: 1px solid #00FF66;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  .mandate-title {
+    font-size: 15px;
+    color: #FFFFFF;
+    line-height: 1.4;
+  }
+
+  .mandate-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #D2EBD7;
+  }
+
+  .highlight-accent {
+    color: #00FF66;
+  }
+
+  .mandate-callout {
+    background: #08170D;
+    border-left: 4px solid #FFB703;
+    padding: 12px 14px;
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+    color: #FFE699;
+    line-height: 1.5;
+  }
+
+  .badge-expert {
+    display: inline-block;
+    background: #E63946;
+    color: #FFFFFF;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin: 0 3px;
+  }
+
+  /* Datasets Grid */
+  .datasets-section {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .section-heading-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+    border-bottom: 2px solid #234E32;
+    padding-bottom: 8px;
+  }
+
+  .section-heading-title {
+    font-size: 13px;
+    color: #00E5FF;
+    letter-spacing: 0.5px;
+  }
+
+  .section-heading-sub {
+    font-size: 12px;
+    color: #84CCA0;
+  }
+
+  .datasets-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .dataset-card {
+    background: linear-gradient(180deg, #0D1C14 0%, #06100B 100%);
+    border: 2px solid #234E32;
+    border-left: 5px solid var(--accent-color, #00FF66);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .dataset-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-color, #00FF66);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8), 0 0 16px rgba(0, 255, 102, 0.2);
+  }
+
+  .ds-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .ds-role-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    font-weight: bold;
+    background: #0B1C13;
+    border: 1.5px solid;
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .ds-access-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #A0C8AA;
+    background: #08140D;
+    border: 1px solid #1D3B27;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  .live-indicator {
+    color: #00FF66;
+    font-size: 10px;
+  }
+
+  .ds-card-title {
+    font-size: 14px;
+    color: #FFFFFF;
+    line-height: 1.4;
+    letter-spacing: 0.3px;
+  }
+
+  .ds-specs-matrix {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 8px;
+    background: #050D08;
+    border: 1px solid #173322;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+
+  .spec-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .spec-label {
+    color: #6C8E76;
+    font-size: 9px;
+  }
+
+  .spec-value {
+    color: #BAE6FD;
+  }
+
+  .ds-params-box {
+    background: #040A06;
+    border: 1px solid #1D432A;
+    border-left: 3px solid #00E5FF;
+    border-radius: 4px;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .params-label {
+    font-size: 9px;
+    color: #00E5FF;
+    letter-spacing: 0.5px;
+  }
+
+  .params-code {
+    font-size: 12px;
+    color: #00FF66;
+    word-break: break-all;
+    line-height: 1.4;
+  }
+
+  .ds-card-desc {
+    font-size: 14px;
+    line-height: 1.55;
+    color: #D8EEDF;
+  }
+
+  /* Limitations Card */
+  .limitations-card {
+    background: linear-gradient(180deg, #1C0B0E 0%, #100608 100%);
+    border: 2px solid #E63946;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 0 16px rgba(230, 57, 70, 0.25), 0 8px 24px rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .lim-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .lim-alert-icon {
+    font-size: 26px;
+    line-height: 1;
+  }
+
+  .lim-title {
+    font-size: 14px;
+    color: #FF6B6B;
+    margin-bottom: 4px;
+  }
+
+  .lim-subtitle {
+    font-size: 13px;
+    color: #FFB3B3;
+  }
+
+  .lim-list {
+    list-style-type: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: #FFE6E6;
+  }
+
+  .lim-list li {
     padding-left: 20px;
+    position: relative;
+  }
+
+  .lim-list li::before {
+    content: "•";
+    position: absolute;
+    left: 4px;
+    color: #FF6B6B;
+    font-size: 18px;
+    line-height: 1;
+    top: 0;
+  }
+
+  .lim-bullet-title {
+    display: block;
+    font-size: 11px;
+    color: #FFD166;
+    margin-bottom: 3px;
   }
 </style>
