@@ -1,0 +1,243 @@
+/* Field Shift Design System - Harvest Almanac Arcade Tokens */
+:root {
+  /* 9 Semantic Colors - strictly enforced */
+  --ink: #2B1B12;
+  --paper: #FFF3D6;
+  --soil: #8A4B2A;
+  --turmeric: #FFB703;
+  --paddy: #3FA34D;
+  --monsoon: #2F6FED;
+  --chili: #E63946;
+  --dusk: #7B4FA3;
+  --sky: #BDE8F5;
+
+  /* Geometry & Outlines */
+  --outline: 3px solid var(--ink);
+  --outline-thick: 4px solid var(--ink);
+  --outline-thin: 2px solid var(--ink);
+  --radius: 16px;
+  --radius-sm: 8px;
+  --radius-pill: 9999px;
+  --shadow: 0 5px 0 var(--ink);
+  --shadow-sm: 0 2px 0 var(--ink);
+  --shadow-lg: 0 8px 0 var(--ink);
+  --shadow-active: 0 1px 0 var(--ink);
+
+  /* Motion tokens */
+  --fast: 120ms;
+  --med: 240ms;
+  --slow: 600ms;
+  --spring: cubic-bezier(.34, 1.56, .64, 1);
+  --ease: cubic-bezier(.2, .8, .2, 1);
+
+  /* Typography */
+  --font-display: "Bagel Fat One", system-ui, cursive, sans-serif;
+  --font-body: "Figtree", system-ui, sans-serif;
+  --font-data: "Space Mono", ui-monospace, monospace;
+
+  /* Spacing Scale: 4, 8, 16, 24, 40 only */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 40px;
+}
+
+/* Reset & Base */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  min-height: 100vh;
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Texture overlay for subtle vintage seed packet look */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: radial-gradient(var(--ink) 1px, transparent 1px);
+  background-size: 8px 8px;
+  z-index: 9999;
+}
+
+/* Headings & Typography */
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.font-data {
+  font-family: var(--font-data);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+/* Sticker Card Base */
+.sticker-card {
+  background: var(--paper);
+  border: var(--outline);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transform: rotate(var(--tilt, 0deg));
+  position: relative;
+  transition: transform var(--fast) var(--spring), box-shadow var(--fast) var(--spring);
+}
+
+/* Washi Tape Strip decoration */
+.sticker-card::before {
+  content: "";
+  position: absolute;
+  top: -9px;
+  left: 20px;
+  width: 54px;
+  height: 18px;
+  background-color: color-mix(in srgb, var(--turmeric) 50%, var(--paper));
+  border: 1px dashed var(--ink);
+  transform: rotate(-3deg);
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.9;
+}
+
+.sticker-card.no-tape::before {
+  display: none;
+}
+
+/* Interactive Buttons */
+.btn {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: var(--outline);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow);
+  padding: 0.55em 1.4em;
+  text-decoration: none;
+  user-select: none;
+  transition: transform var(--fast) var(--spring), box-shadow var(--fast) var(--spring), background-color var(--fast) ease;
+}
+
+.btn-primary {
+  background-color: var(--turmeric);
+  color: var(--ink);
+}
+
+.btn-secondary {
+  background-color: var(--paper);
+  color: var(--ink);
+}
+
+.btn-paddy {
+  background-color: var(--paddy);
+  color: var(--paper);
+}
+
+.btn-chili {
+  background-color: var(--chili);
+  color: var(--paper);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 var(--ink);
+}
+
+.btn:active {
+  transform: translateY(4px);
+  box-shadow: var(--shadow-active);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Data Chips: Monsoon-blue tags */
+.data-chip {
+  font-family: var(--font-data);
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: var(--monsoon);
+  color: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-sm);
+  padding: 0.15em 0.55em;
+  box-shadow: 0 2px 0 var(--ink);
+  cursor: pointer;
+  transition: transform var(--fast) var(--spring);
+}
+
+.data-chip:hover {
+  transform: scale(1.05);
+}
+
+/* Rubber Stamp for "ASK A LOCAL EXPERT" */
+@keyframes stamp-thud {
+  0% {
+    transform: scale(1.5) rotate(var(--stamp-angle, -8deg));
+    opacity: 0;
+  }
+  60% {
+    transform: scale(0.92) rotate(var(--stamp-angle, -8deg));
+    opacity: 1;
+  }
+  80% {
+    transform: scale(1.05) rotate(var(--stamp-angle, -8deg));
+  }
+  100% {
+    transform: scale(1) rotate(var(--stamp-angle, -8deg));
+  }
+}
+
+.rubber-stamp {
+  font-family: var(--font-display);
+  color: var(--chili);
+  border: 3.5px double var(--chili);
+  border-radius: 8px;
+  padding: 6px 14px;
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.95rem;
+  line-height: 1.1;
+  transform: rotate(var(--stamp-angle, -8deg));
+  animation: stamp-thud var(--slow) var(--spring) forwards;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--chili) 20%, transparent);
+  user-select: none;
+}
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
