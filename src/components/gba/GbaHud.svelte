@@ -238,10 +238,6 @@
     color: var(--ink);
   }
 
-  .mini-meter.coins {
-    background-color: color-mix(in srgb, var(--turmeric) 35%, var(--paper));
-  }
-
   .hud-right {
     display: flex;
     align-items: center;

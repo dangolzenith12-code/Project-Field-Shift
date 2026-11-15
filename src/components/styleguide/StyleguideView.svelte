@@ -123,7 +123,7 @@
         <Slider label="Organic Matter Test" bind:value={testOrganic} min={0} max={100} unit="%" />
         <Slider label="Nitrogen Test" bind:value={testNitrogen} min={0} max={100} unit="%" />
         <Slider label="Erosion Test" bind:value={testErosion} min={0} max={100} unit="%" />
-        <Slider label="Income Coins Test" bind:value={testIncome} min={20} max={300} unit="🪙" />
+        <Slider label="Income Points Test" bind:value={testIncome} min={20} max={300} unit="pts" />
       </div>
     </div>
   </section>
@@ -141,7 +141,7 @@
       </div>
 
       <div class="slider-demo-box">
-        <Slider label="Demonstration Slider" icon="🌾" bind:value={testSliderVal} min={0} max={100} unit="%" />
+        <Slider label="Demonstration Slider" bind:value={testSliderVal} min={0} max={100} unit="%" />
       </div>
     </div>
   </section>
