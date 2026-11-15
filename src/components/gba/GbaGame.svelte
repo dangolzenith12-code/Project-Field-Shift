@@ -468,6 +468,7 @@
       {timeOfDay}
       {showMiniMap}
       {toolActionActive}
+      regionId={currentRegion.id}
       onInteract={(ent) => startDialogue(ent.dialogueId)} 
       onCycleTool={cycleTool}
       onToggleMiniMap={() => showMiniMap = !showMiniMap}

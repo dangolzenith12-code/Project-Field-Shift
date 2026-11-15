@@ -66,6 +66,10 @@
           <h2 class="region-title font-display">{item.title}</h2>
           <p class="region-summary font-body">{item.summary}</p>
 
+          <div class="card-motif-divider">
+            <BlockPrintBorder height={6} variant={item.id === 'karnataka' ? 'kasuti' : 'phulkari'} />
+          </div>
+
           <div class="card-footer">
             {#if item.isAvailable}
               <button 
@@ -167,6 +171,10 @@
     opacity: 0.7;
     background-color: #F8F5EE;
     border-style: dashed;
+  }
+
+  .card-motif-divider {
+    margin: 4px 0 8px 0;
   }
 
   .card-top {
