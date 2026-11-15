@@ -167,7 +167,6 @@
     k3Answer = null;
     meters = { ...DECCAN_INITIAL_METERS };
   }
-  }
 </script>
 
 <!-- LITERAL FULLSCREEN EDGE-TO-EDGE VIEWPORT -->
@@ -521,7 +520,7 @@
       <div class="calibration-options-grid">
         <!-- 1. Catchment Infrastructure -->
         <div class="calibration-group">
-          <label class="group-title font-display">1. Runoff Catchment Infrastructure</label>
+          <span class="group-title font-display">1. Runoff Catchment Infrastructure</span>
           <div class="radio-pill-stack font-body">
             <label class="pill-option {catchmentSetup === 'bare_channel' ? 'selected' : ''}">
               <input type="radio" bind:group={catchmentSetup} value="bare_channel" />
@@ -540,7 +539,7 @@
 
         <!-- 2. Water Delivery Method -->
         <div class="calibration-group">
-          <label class="group-title font-display">2. Irrigation Water Source</label>
+          <span class="group-title font-display">2. Irrigation Water Source</span>
           <div class="radio-pill-stack font-body">
             <label class="pill-option {waterSource === 'deep_borewell_1000ft' ? 'selected' : ''}">
               <input type="radio" bind:group={waterSource} value="deep_borewell_1000ft" />
@@ -559,7 +558,7 @@
 
         <!-- 3. Ground Mulching -->
         <div class="calibration-group">
-          <label class="group-title font-display">3. Soil Surface Mulch Practice</label>
+          <span class="group-title font-display">3. Soil Surface Mulch Practice</span>
           <div class="radio-pill-stack font-body">
             <label class="pill-option {mulchPractice === 'bare_exposed' ? 'selected' : ''}">
               <input type="radio" bind:group={mulchPractice} value="bare_exposed" />
